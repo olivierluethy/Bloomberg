@@ -1,26 +1,163 @@
 @import "tailwindcss";
 
+/*
+ * TERM — design tokens.
+ * Dark-only terminal aesthetic. There is no light theme to maintain.
+ * Numeric data is always monospace with tabular figures; UI is IBM Plex Sans.
+ */
+@theme {
+  /* Surfaces — near-black, layered by elevation */
+  --color-void: #0a0a0b;
+  --color-panel: #111214;
+  --color-elevated: #17181b;
+  --color-line: #24262b;
+  --color-line-bright: #34373d;
+
+  /* Accents — amber is command/active, cyan is secondary data */
+  --color-amber: #ff9e1b;
+  --color-cyan: #38bdf8;
+
+  /* Semantic — gains / losses / flat */
+  --color-up: #26d07c;
+  --color-down: #ff4d5e;
+  --color-flat: #8a8d93;
+
+  /* Text ramp */
+  --color-fg: #e6e7e9;
+  --color-fg-dim: #8a8d93;
+  --color-fg-faint: #55585f;
+
+  /* Typography */
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", monospace;
+
+  /* Compact type scale — a terminal packs information */
+  --text-2xs: 0.625rem; /* 10px — micro eyebrows */
+  --text-2xs--line-height: 0.875rem;
+  --text-xs: 0.6875rem; /* 11px */
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.75rem; /* 12px */
+  --text-sm--line-height: 1.125rem;
+  --text-base: 0.8125rem; /* 13px — body default */
+  --text-base--line-height: 1.25rem;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-void);
+  color: var(--color-fg);
+  font-size: var(--text-base);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Structural micro-label used as an eyebrow throughout the shell */
+.eyebrow {
+  font-size: var(--text-2xs);
+  line-height: var(--text-2xs--line-height);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-fg-faint);
+  font-weight: 600;
+}
+
+/* --- Signature: data cells flash on tick, like a live tape --- */
+@keyframes flash-up {
+  0% {
+    background-color: color-mix(in oklab, var(--color-up) 34%, transparent);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+@keyframes flash-down {
+  0% {
+    background-color: color-mix(in oklab, var(--color-down) 34%, transparent);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+.flash-up {
+  animation: flash-up 0.5s ease-out;
+}
+.flash-down {
+  animation: flash-down 0.5s ease-out;
+}
+
+/* Amber command caret blink */
+@keyframes caret-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  95% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+.caret-blink {
+  animation: caret-blink 1.1s step-end infinite;
+}
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in oklab, var(--color-fg) 6%, transparent),
+    transparent
+  );
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+/* Thin, dark scrollbars to match the density */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line-bright) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-line-bright);
+  border-radius: 0;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-amber) 30%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
