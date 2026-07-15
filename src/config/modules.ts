@@ -36,6 +36,11 @@ export const MODULES: ModuleDef[] = [
   { id: "calendars", label: "Calendars", href: "/calendars", code: "CAL", group: "Analysis", blurb: "Earnings, economic, IPO" },
 ];
 
+/** Dev-only modules — shown in the nav only outside production builds. */
+export const DEV_MODULES: ModuleDef[] = [
+  { id: "lab", label: "Data Lab", href: "/lab", code: "LAB", group: "Analysis", blurb: "Data-layer smoke test" },
+];
+
 export const MODULE_GROUPS: ModuleGroup[] = ["Overview", "Asset Classes", "Analysis"];
 
 export function modulesByGroup(group: ModuleGroup): ModuleDef[] {
@@ -43,9 +48,10 @@ export function modulesByGroup(group: ModuleGroup): ModuleDef[] {
 }
 
 export function findModuleByHref(pathname: string): ModuleDef | undefined {
+  const all = [...MODULES, ...DEV_MODULES];
   // Exact match for "/", longest-prefix match for nested module routes.
-  if (pathname === "/") return MODULES.find((m) => m.href === "/");
-  return MODULES.filter((m) => m.href !== "/" && pathname.startsWith(m.href)).sort(
-    (a, b) => b.href.length - a.href.length,
-  )[0];
+  if (pathname === "/") return all.find((m) => m.href === "/");
+  return all
+    .filter((m) => m.href !== "/" && pathname.startsWith(m.href))
+    .sort((a, b) => b.href.length - a.href.length)[0];
 }

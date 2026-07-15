@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/shell/AppShell";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 
 const plexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -32,7 +33,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-void text-fg font-sans">
-        <AppShell>{children}</AppShell>
+        <QueryProvider>
+          <AppShell>{children}</AppShell>
+        </QueryProvider>
       </body>
     </html>
   );

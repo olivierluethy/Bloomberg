@@ -4,7 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { cn } from "@/lib/cn";
-import { MODULE_GROUPS, findModuleByHref, modulesByGroup } from "@/config/modules";
+import {
+  DEV_MODULES,
+  MODULE_GROUPS,
+  type ModuleDef,
+  findModuleByHref,
+  modulesByGroup,
+} from "@/config/modules";
 
 /**
  * Module navigation rail. Items are Bloomberg-style function mnemonics (EQ, FX,
@@ -15,6 +21,7 @@ export function LeftNav() {
   const pathname = usePathname();
   const active = findModuleByHref(pathname);
   const [collapsed, setCollapsed] = useState(false);
+  const showDev = process.env.NODE_ENV !== "production" && DEV_MODULES.length > 0;
 
   return (
     <nav
@@ -29,37 +36,23 @@ export function LeftNav() {
           <div key={group} className="mb-1 px-2">
             {!collapsed && <div className="eyebrow px-2 py-1.5">{group}</div>}
             <ul className="flex flex-col">
-              {modulesByGroup(group).map((mod) => {
-                const isActive = active?.id === mod.id;
-                return (
-                  <li key={mod.id}>
-                    <Link
-                      href={mod.href}
-                      title={collapsed ? `${mod.label} — ${mod.blurb}` : mod.blurb}
-                      aria-current={isActive ? "page" : undefined}
-                      className={cn(
-                        "group flex items-center gap-2.5 border-l-2 px-2 py-1.5 transition-colors",
-                        isActive
-                          ? "border-amber bg-elevated text-fg"
-                          : "border-transparent text-fg-dim hover:bg-elevated hover:text-fg",
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "flex w-9 shrink-0 justify-center font-mono text-2xs font-bold tracking-wide",
-                          isActive ? "text-amber" : "text-fg-faint group-hover:text-fg-dim",
-                        )}
-                      >
-                        {mod.code}
-                      </span>
-                      {!collapsed && <span className="truncate text-sm">{mod.label}</span>}
-                    </Link>
-                  </li>
-                );
-              })}
+              {modulesByGroup(group).map((mod) => (
+                <NavItem key={mod.id} mod={mod} active={active?.id === mod.id} collapsed={collapsed} />
+              ))}
             </ul>
           </div>
         ))}
+
+        {showDev && (
+          <div className="mb-1 px-2">
+            {!collapsed && <div className="eyebrow px-2 py-1.5 text-amber/70">Dev</div>}
+            <ul className="flex flex-col">
+              {DEV_MODULES.map((mod) => (
+                <NavItem key={mod.id} mod={mod} active={active?.id === mod.id} collapsed={collapsed} />
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
       <button
@@ -71,5 +64,33 @@ export function LeftNav() {
         <span className="font-mono text-sm" aria-hidden>{collapsed ? "»" : "«"}</span>
       </button>
     </nav>
+  );
+}
+
+function NavItem({ mod, active, collapsed }: { mod: ModuleDef; active: boolean; collapsed: boolean }) {
+  return (
+    <li>
+      <Link
+        href={mod.href}
+        title={collapsed ? `${mod.label} — ${mod.blurb}` : mod.blurb}
+        aria-current={active ? "page" : undefined}
+        className={cn(
+          "group flex items-center gap-2.5 border-l-2 px-2 py-1.5 transition-colors",
+          active
+            ? "border-amber bg-elevated text-fg"
+            : "border-transparent text-fg-dim hover:bg-elevated hover:text-fg",
+        )}
+      >
+        <span
+          className={cn(
+            "flex w-9 shrink-0 justify-center font-mono text-2xs font-bold tracking-wide",
+            active ? "text-amber" : "text-fg-faint group-hover:text-fg-dim",
+          )}
+        >
+          {mod.code}
+        </span>
+        {!collapsed && <span className="truncate text-sm">{mod.label}</span>}
+      </Link>
+    </li>
   );
 }
