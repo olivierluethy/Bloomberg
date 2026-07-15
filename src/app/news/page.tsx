@@ -1,5 +1,5 @@
-import { PlaceholderModule } from "@/components/modules/PlaceholderModule";
+import { NewsFeed } from "@/components/modules/NewsFeed";
 
 export default function Page() {
-  return <PlaceholderModule moduleId="news" />;
+  return <NewsFeed />;
 }

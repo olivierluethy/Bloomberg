@@ -8,6 +8,7 @@ import { coinGeckoAdapter } from "@/data/adapters/coingecko";
 import { finnhubAdapter } from "@/data/adapters/finnhub";
 import { twelveDataAdapter } from "@/data/adapters/twelvedata";
 import { fredAdapter } from "@/data/adapters/fred";
+import { newsApiAdapter } from "@/data/adapters/newsapi";
 
 /**
  * The server-side implementation of MarketDataProvider. It routes each call to
@@ -62,7 +63,9 @@ export const routingProvider: MarketDataProvider = {
   },
 
   getNews(query) {
-    const attempts = available.finnhub ? [() => finnhubAdapter.getNews(query)] : [];
+    const attempts: Attempt<Awaited<ReturnType<MarketDataProvider["getNews"]>>["data"]>[] = [];
+    if (available.newsApi) attempts.push(() => newsApiAdapter.getNews(query));
+    if (available.finnhub) attempts.push(() => finnhubAdapter.getNews(query));
     return firstOk(attempts, () => mockProvider.getNews(query));
   },
 

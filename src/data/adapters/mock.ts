@@ -152,16 +152,20 @@ export const mockProvider: MarketDataProvider = {
       "Downgrade: broker cools on {c} valuation",
     ];
     const now = Date.now();
+    const tickerPool = ["AAPL", "MSFT", "NVDA", "TSLA", "AMZN", "META", "JPM", "XOM", "SPY", "BTC-USD"];
     const items: NewsItem[] = Array.from({ length: limit }).map((_, i) => {
       const company = query.symbol ?? f.company.name();
       const template = f.helpers.arrayElement(templates);
+      const tickers = query.symbol
+        ? [query.symbol]
+        : f.helpers.arrayElements(tickerPool, { min: 1, max: 3 });
       return {
         id: `${query.symbol ?? "mkt"}-${i}`,
         headline: template.replace("{c}", company),
         source: f.helpers.arrayElement(["Reuters", "MarketWatch", "The Ledger", "Capital Wire", "FinDesk"]),
         publishedAt: now - i * f.number.int({ min: 6e5, max: 5.4e6 }),
         category: query.category ?? f.helpers.arrayElement(["Markets", "Earnings", "Macro", "Tech", "Energy"]),
-        tickers: query.symbol ? [query.symbol] : undefined,
+        tickers,
         summary: f.lorem.sentence({ min: 10, max: 18 }),
       };
     });

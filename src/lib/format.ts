@@ -30,6 +30,16 @@ export function formatCompact(value: number): string {
   });
 }
 
+/** Compact relative age of a timestamp: "now", "4m", "3h", "2d". */
+export function formatRelativeTime(epochMs: number, now: number = Date.now()): string {
+  const diffMin = Math.floor((now - epochMs) / 60_000);
+  if (diffMin < 1) return "now";
+  if (diffMin < 60) return `${diffMin}m`;
+  const diffH = Math.floor(diffMin / 60);
+  if (diffH < 24) return `${diffH}h`;
+  return `${Math.floor(diffH / 24)}d`;
+}
+
 /** Semantic direction of a change, used to pick up/down/flat coloring. */
 export type Direction = "up" | "down" | "flat";
 
