@@ -1,7 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { apiClientProvider as api } from "@/data/api-client";
 import { qk, staleTimes } from "@/data/query";
-import type { DateRange, Interval, NewsQuery, Range } from "@/data/types";
+import type { DateRange, Interval, NewsQuery, Quote, Range, Sourced } from "@/data/types";
+import type { UseQueryResult } from "@tanstack/react-query";
 
 /**
  * The public data hooks. Every component reads market data through these — the
@@ -15,6 +16,20 @@ export function useQuote(symbol?: string) {
     queryFn: () => api.getQuote(symbol as string),
     enabled: Boolean(symbol),
     staleTime: staleTimes.quote,
+  });
+}
+
+/**
+ * Batch quotes for a list panel. One cached query per symbol (shared with any
+ * single useQuote elsewhere), fanned out via useQueries.
+ */
+export function useQuotes(symbols: string[]): UseQueryResult<Sourced<Quote>>[] {
+  return useQueries({
+    queries: symbols.map((symbol) => ({
+      queryKey: qk.quote(symbol),
+      queryFn: () => api.getQuote(symbol),
+      staleTime: staleTimes.quote,
+    })),
   });
 }
 

@@ -1,5 +1,5 @@
-import { PlaceholderModule } from "@/components/modules/PlaceholderModule";
+import { AssetClassPanel } from "@/components/modules/AssetClassPanel";
 
 export default function Page() {
-  return <PlaceholderModule moduleId="indices" />;
+  return <AssetClassPanel moduleId="indices" />;
 }
