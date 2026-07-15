@@ -39,6 +39,7 @@ export const MODULES: ModuleDef[] = [
 /** Dev-only modules — shown in the nav only outside production builds. */
 export const DEV_MODULES: ModuleDef[] = [
   { id: "lab", label: "Data Lab", href: "/lab", code: "LAB", group: "Analysis", blurb: "Data-layer smoke test" },
+  { id: "chart", label: "Chart Lab", href: "/chart", code: "CHT", group: "Analysis", blurb: "Charting engine" },
 ];
 
 export const MODULE_GROUPS: ModuleGroup[] = ["Overview", "Asset Classes", "Analysis"];
