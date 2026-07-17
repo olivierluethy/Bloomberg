@@ -33,5 +33,7 @@ export const apiClientProvider: MarketDataProvider = {
   getOwnership: (symbol) => call("ownership", { symbol }),
   getEconomicSeries: (seriesId) => call("econ", { seriesId }),
   getEarningsCalendar: (range) => call("earnings", { from: range.from, to: range.to }),
+  getEconomicCalendar: (range) => call("econcal", { from: range.from, to: range.to }),
+  getIpoCalendar: (range) => call("ipo", { from: range.from, to: range.to }),
   search: (query) => call("search", { q: query }),
 };

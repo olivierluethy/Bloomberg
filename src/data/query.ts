@@ -45,5 +45,7 @@ export const qk = {
   ownership: (symbol?: string) => ["ownership", symbol] as const,
   econ: (seriesId?: string) => ["econ", seriesId] as const,
   earnings: (from?: string, to?: string) => ["earnings", from, to] as const,
+  econcal: (from?: string, to?: string) => ["econcal", from, to] as const,
+  ipo: (from?: string, to?: string) => ["ipo", from, to] as const,
   search: (query?: string) => ["search", query] as const,
 };

@@ -6,7 +6,10 @@ import type {
   AnalystRating,
   AssetClass,
   Candle,
+  EconomicEvent,
+  EventImpact,
   Interval,
+  IpoEvent,
   NewsItem,
   OrderBookLevel,
   Range,
@@ -293,6 +296,76 @@ export const mockProvider: MarketDataProvider = {
     }
     points.reverse(); // oldest → newest, as every consumer expects
     return sourced(points, "simulated", PROVIDER);
+  },
+
+  async getEconomicCalendar(range) {
+    const f = seededFaker(range.from, range.to, "econcal");
+    const today = new Date().toISOString().slice(0, 10);
+    const releases: { title: string; impact: EventImpact; unit: string; time: string }[] = [
+      { title: "CPI m/m", impact: "high", unit: "%", time: "08:30 ET" },
+      { title: "Core CPI m/m", impact: "high", unit: "%", time: "08:30 ET" },
+      { title: "Nonfarm Payrolls", impact: "high", unit: "K", time: "08:30 ET" },
+      { title: "Unemployment Rate", impact: "high", unit: "%", time: "08:30 ET" },
+      { title: "FOMC Rate Decision", impact: "high", unit: "%", time: "14:00 ET" },
+      { title: "Initial Jobless Claims", impact: "medium", unit: "K", time: "08:30 ET" },
+      { title: "Retail Sales m/m", impact: "medium", unit: "%", time: "08:30 ET" },
+      { title: "ISM Manufacturing PMI", impact: "medium", unit: "", time: "10:00 ET" },
+      { title: "Consumer Sentiment", impact: "medium", unit: "", time: "10:00 ET" },
+      { title: "Housing Starts", impact: "low", unit: "M", time: "08:30 ET" },
+      { title: "Crude Oil Inventories", impact: "low", unit: "M", time: "10:30 ET" },
+      { title: "GDP q/q (2nd est.)", impact: "medium", unit: "%", time: "08:30 ET" },
+    ];
+
+    const events: EconomicEvent[] = releases.map((r, i) => {
+      const date = f.date.between({ from: range.from, to: range.to }).toISOString().slice(0, 10);
+      const scale = r.unit === "K" ? 200 : r.unit === "M" ? 1.5 : 4;
+      const previous = Number((f.number.float({ min: 0.1, max: 1 }) * scale).toFixed(2));
+      const forecast = Number((previous * f.number.float({ min: 0.9, max: 1.1 })).toFixed(2));
+      // A release in the future has no actual yet — inventing one would put a
+      // printed number next to a date that hasn't happened.
+      const released = date <= today;
+      return {
+        id: `econ-${i}`,
+        date,
+        time: r.time,
+        title: r.title,
+        country: "US",
+        impact: r.impact,
+        forecast,
+        previous,
+        ...(released ? { actual: Number((forecast * f.number.float({ min: 0.85, max: 1.15 })).toFixed(2)) } : {}),
+        unit: r.unit,
+      };
+    });
+
+    events.sort((a, b) => a.date.localeCompare(b.date));
+    return sourced(events, "simulated", PROVIDER);
+  },
+
+  async getIpoCalendar(range) {
+    const f = seededFaker(range.from, range.to, "ipo");
+    const today = new Date().toISOString().slice(0, 10);
+    const events: IpoEvent[] = Array.from({ length: 8 }).map((_, i) => {
+      const date = f.date.between({ from: range.from, to: range.to }).toISOString().slice(0, 10);
+      const priceLow = Number(f.number.float({ min: 8, max: 40, fractionDigits: 2 }).toFixed(2));
+      // Invariant: the range is a range — low below high.
+      const priceHigh = Number((priceLow * f.number.float({ min: 1.05, max: 1.35 })).toFixed(2));
+      const status: IpoEvent["status"] =
+        date <= today ? f.helpers.arrayElement(["priced", "withdrawn"]) : "expected";
+      return {
+        id: `ipo-${i}`,
+        symbol: f.string.alpha({ length: { min: 3, max: 4 }, casing: "upper" }),
+        company: `${f.company.name()}`,
+        date,
+        exchange: f.helpers.arrayElement(["NASDAQ", "NYSE"]),
+        // A withdrawn deal never priced, so it carries no range.
+        ...(status === "withdrawn" ? {} : { priceLow, priceHigh }),
+        shares: f.number.int({ min: 2e6, max: 6e7 }),
+        status,
+      };
+    });
+    events.sort((a, b) => a.date.localeCompare(b.date));
+    return sourced(events, "simulated", PROVIDER);
   },
 
   async getEarningsCalendar(range) {

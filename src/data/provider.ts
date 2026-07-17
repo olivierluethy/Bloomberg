@@ -5,7 +5,9 @@ import type {
   DateRange,
   EarningsEvent,
   EconPoint,
+  EconomicEvent,
   Fundamentals,
+  IpoEvent,
   Interval,
   NewsItem,
   NewsQuery,
@@ -35,6 +37,10 @@ export interface MarketDataProvider {
   getOwnership(symbol: string): Promise<Sourced<Ownership>>;
   getEconomicSeries(seriesId: string): Promise<Sourced<EconPoint[]>>;
   getEarningsCalendar(range: DateRange): Promise<Sourced<EarningsEvent[]>>;
+  /** Always mocked — no free source publishes a macro release calendar. */
+  getEconomicCalendar(range: DateRange): Promise<Sourced<EconomicEvent[]>>;
+  /** Always mocked — the free IPO calendars went premium. */
+  getIpoCalendar(range: DateRange): Promise<Sourced<IpoEvent[]>>;
   search(query: string): Promise<Sourced<SearchResult[]>>;
 }
 

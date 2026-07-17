@@ -59,6 +59,20 @@ export async function GET(
             to: sp.get("to") ?? "",
           }),
         );
+      case "econcal":
+        return NextResponse.json(
+          await routingProvider.getEconomicCalendar({
+            from: sp.get("from") ?? "",
+            to: sp.get("to") ?? "",
+          }),
+        );
+      case "ipo":
+        return NextResponse.json(
+          await routingProvider.getIpoCalendar({
+            from: sp.get("from") ?? "",
+            to: sp.get("to") ?? "",
+          }),
+        );
       case "search":
         return NextResponse.json(await routingProvider.search(sp.get("q") ?? ""));
       default:

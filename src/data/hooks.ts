@@ -1,7 +1,16 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { apiClientProvider as api } from "@/data/api-client";
 import { qk, staleTimes } from "@/data/query";
-import type { DateRange, Fundamentals, Interval, NewsQuery, Quote, Range, Sourced } from "@/data/types";
+import type {
+  DateRange,
+  EconPoint,
+  Fundamentals,
+  Interval,
+  NewsQuery,
+  Quote,
+  Range,
+  Sourced,
+} from "@/data/types";
 import type { UseQueryResult } from "@tanstack/react-query";
 
 /**
@@ -106,6 +115,38 @@ export function useEconomicSeries(seriesId?: string) {
     queryFn: () => api.getEconomicSeries(seriesId as string),
     enabled: Boolean(seriesId),
     staleTime: staleTimes.econ,
+  });
+}
+
+/**
+ * Batch macro series — the economy dashboard loads a whole board at once, and
+ * the yield curve is ten series that only mean something together.
+ */
+export function useEconomicSeriesBatch(seriesIds: string[]): UseQueryResult<Sourced<EconPoint[]>>[] {
+  return useQueries({
+    queries: seriesIds.map((seriesId) => ({
+      queryKey: qk.econ(seriesId),
+      queryFn: () => api.getEconomicSeries(seriesId),
+      staleTime: staleTimes.econ,
+    })),
+  });
+}
+
+export function useEconomicCalendar(range: DateRange) {
+  return useQuery({
+    queryKey: qk.econcal(range.from, range.to),
+    queryFn: () => api.getEconomicCalendar(range),
+    enabled: Boolean(range.from && range.to),
+    staleTime: staleTimes.earnings,
+  });
+}
+
+export function useIpoCalendar(range: DateRange) {
+  return useQuery({
+    queryKey: qk.ipo(range.from, range.to),
+    queryFn: () => api.getIpoCalendar(range),
+    enabled: Boolean(range.from && range.to),
+    staleTime: staleTimes.earnings,
   });
 }
 

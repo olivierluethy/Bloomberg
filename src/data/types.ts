@@ -143,6 +143,36 @@ export interface EarningsEvent {
   time?: "bmo" | "amc" | "dmh";
 }
 
+export type EventImpact = "low" | "medium" | "high";
+
+/** A scheduled macro release (CPI print, FOMC decision, payrolls). */
+export interface EconomicEvent {
+  id: string;
+  date: string;
+  /** Release time, local to the venue, e.g. "08:30 ET". */
+  time?: string;
+  title: string;
+  country: string;
+  impact: EventImpact;
+  actual?: number;
+  forecast?: number;
+  previous?: number;
+  /** Unit suffix for the three figures above, e.g. "%" or "K". */
+  unit?: string;
+}
+
+export interface IpoEvent {
+  id: string;
+  symbol: string;
+  company: string;
+  date: string;
+  exchange: string;
+  priceLow?: number;
+  priceHigh?: number;
+  shares?: number;
+  status: "expected" | "priced" | "withdrawn";
+}
+
 export interface DateRange {
   from: string;
   to: string;

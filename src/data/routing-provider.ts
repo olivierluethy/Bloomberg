@@ -92,6 +92,16 @@ export const routingProvider: MarketDataProvider = {
     return firstOk(attempts, () => mockProvider.getEarningsCalendar(range));
   },
 
+  // No free source publishes a macro release calendar, and the free IPO
+  // calendars went premium — these are mock-only by design, not by omission.
+  getEconomicCalendar(range) {
+    return mockProvider.getEconomicCalendar(range);
+  },
+
+  getIpoCalendar(range) {
+    return mockProvider.getIpoCalendar(range);
+  },
+
   search(query) {
     const attempts = available.finnhub ? [() => finnhubAdapter.search(query)] : [];
     return firstOk(attempts, () => mockProvider.search(query));
