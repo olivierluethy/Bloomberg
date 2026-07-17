@@ -50,6 +50,7 @@ export function CommandPalette() {
 function PaletteBody({ onClose }: { onClose: () => void }) {
   const router = useRouter();
   const openModal = useUIStore((s) => s.openModal);
+  const openWorkspace = useUIStore((s) => s.openWorkspace);
 
   const lists = useWatchlistStore((s) => s.lists);
   const activeList = useActiveWatchlist();
@@ -68,6 +69,7 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
         activeList,
         isDev: process.env.NODE_ENV !== "production",
         navigate: (href) => router.push(href),
+        openWorkspace,
         togglePin: (symbol) => {
           if (activeList) toggleSymbol(activeList.id, symbol);
         },
@@ -78,7 +80,7 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
           openModal("watchlists");
         },
       }),
-    [lists, activeList, router, toggleSymbol, setActive, createList, openModal],
+    [lists, activeList, router, openWorkspace, toggleSymbol, setActive, createList, openModal],
   );
 
   const ranked = useMemo(() => filterItems(items, query), [items, query]);
@@ -97,13 +99,14 @@ function PaletteBody({ onClose }: { onClose: () => void }) {
   const runItem = (item: PaletteItem, alt: boolean) => {
     if (alt && item.runAlt) {
       item.runAlt();
-      onClose();
+      // A symbol's alternate action is pin/unpin — a toggle you often repeat, so
+      // the palette stays up and the row's star flips in place.
+      if (item.group !== "Symbols") onClose();
       return;
     }
+    // Every primary action is a jump (workspace, module, modal), so it closes.
     item.run();
-    // Pinning is a toggle you often repeat — keep the palette up for it and let
-    // the row's state flip in place. Every other command is a jump, so it closes.
-    if (item.group !== "Symbols") onClose();
+    onClose();
   };
 
   const onKeyDown = (e: React.KeyboardEvent) => {
@@ -248,15 +251,13 @@ function Footer({ activeItem, activeListName }: { activeItem?: PaletteItem; acti
   return (
     <div className="flex shrink-0 items-center gap-3 border-t border-line px-3 py-1.5 text-2xs text-fg-faint">
       <Hint keys="↑↓" label="Navigate" />
-      <Hint
-        keys="⏎"
-        label={
-          isSymbol
-            ? `${activeItem?.pinned ? "Unpin from" : "Pin to"} ${activeListName ?? "watchlist"}`
-            : "Run"
-        }
-      />
-      {isSymbol && <Hint keys="⌘⏎" label="Open module" />}
+      <Hint keys="⏎" label={isSymbol ? "Open workspace" : "Run"} />
+      {isSymbol && (
+        <Hint
+          keys="⌘⏎"
+          label={`${activeItem?.pinned ? "Unpin from" : "Pin to"} ${activeListName ?? "watchlist"}`}
+        />
+      )}
       <span className="ml-auto font-mono tracking-wide">TERM</span>
     </div>
   );

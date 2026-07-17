@@ -35,6 +35,7 @@ export interface PaletteContext {
   activeList?: Watchlist;
   isDev: boolean;
   navigate: (href: string) => void;
+  openWorkspace: (symbol: string) => void;
   togglePin: (symbol: string) => void;
   setActiveList: (id: string) => void;
   openManager: () => void;
@@ -69,11 +70,10 @@ function symbolItems(ctx: PaletteContext): PaletteItem[] {
     tag: moduleCode(entry.moduleId),
     keywords: entry.assetClass,
     pinned: pinnedSet.has(entry.symbol),
-    // Phase 6 has no asset-detail view yet, so the primary action is the one
-    // this phase actually delivers: pin/unpin. Phase 7 repoints it at the
-    // workspace overlay and demotes pinning to the alternate action.
-    run: () => ctx.togglePin(entry.symbol),
-    runAlt: () => ctx.navigate(moduleHref(entry.moduleId)),
+    // Ticker + Enter opens the asset workspace — the terminal reflex. Pinning
+    // moved to the alternate action once Phase 7 gave symbols somewhere to go.
+    run: () => ctx.openWorkspace(entry.symbol),
+    runAlt: () => ctx.togglePin(entry.symbol),
   }));
 }
 
@@ -174,10 +174,6 @@ export function groupRanked(ranked: RankedItem[]): { group: PaletteGroup; items:
     else groups.push({ group: entry.item.group, items: [entry] });
   }
   return groups;
-}
-
-function moduleHref(moduleId: string): string {
-  return MODULES.find((m) => m.id === moduleId)?.href ?? "/";
 }
 
 function moduleCode(moduleId: string): string {
