@@ -3,7 +3,7 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { SkeletonRows } from "@/components/primitives/Skeleton";
 import { SourceTag } from "@/components/primitives/SourceTag";
-import { GRID_INK, MAGNITUDE_HUE } from "@/config/viz";
+import { AXIS_INK, GRID_INK, MAGNITUDE_HUE } from "@/config/viz";
 import { YIELD_CURVE } from "@/config/econ";
 import { useEconomicSeriesBatch } from "@/data/hooks";
 import { cn } from "@/lib/cn";
@@ -64,20 +64,20 @@ export function YieldCurve() {
             <CartesianGrid stroke={GRID_INK} vertical={false} />
             <XAxis
               dataKey="label"
-              tick={{ fill: "#55585f", fontSize: 9 }}
+              tick={{ fill: AXIS_INK, fontSize: 9 }}
               tickLine={false}
               axisLine={{ stroke: GRID_INK }}
             />
             <YAxis
               domain={[Math.min(...yields) - pad, Math.max(...yields) + pad]}
-              tick={{ fill: "#55585f", fontSize: 9 }}
+              tick={{ fill: AXIS_INK, fontSize: 9 }}
               tickLine={false}
               axisLine={false}
               width={34}
               tickFormatter={(v: number) => v.toFixed(1)}
             />
             <Tooltip
-              cursor={{ stroke: "#34373d" }}
+              cursor={{ stroke: "var(--color-line-bright)" }}
               content={({ payload, label }) => {
                 const p = payload?.[0];
                 if (!p) return null;

@@ -82,6 +82,12 @@ export function assetClassLabel(cls: AssetClass): string {
  */
 export const MAGNITUDE_HUE = "#3987e5";
 
-/** Recessive grid/axis ink, matching the app's line tokens. */
-export const AXIS_INK = "#55585f";
-export const GRID_INK = "#24262b";
+/**
+ * Grid and axis ink, taken from the design tokens rather than copied as hexes —
+ * SVG resolves `var()` fine, and the copies had already drifted: chart ticks
+ * kept the old #55585f after the text ramp was raised for contrast, so the
+ * labels stayed at 2.5:1 while the rest of the app was fixed.
+ */
+export const AXIS_INK = "var(--color-fg-faint)";
+export const LABEL_INK = "var(--color-fg-dim)";
+export const GRID_INK = "var(--color-line)";

@@ -4,7 +4,7 @@ import { Bar, BarChart, CartesianGrid, LabelList, ResponsiveContainer, Tooltip, 
 import { useMemo } from "react";
 import { SkeletonRows } from "@/components/primitives/Skeleton";
 import { SourceTag } from "@/components/primitives/SourceTag";
-import { GRID_INK, MAGNITUDE_HUE, assetClassLabel } from "@/config/viz";
+import { GRID_INK, LABEL_INK, MAGNITUDE_HUE, assetClassLabel } from "@/config/viz";
 import { classifySymbol } from "@/data/provider";
 import { useFundamentalsBatch } from "@/data/hooks";
 import { formatPrice } from "@/lib/format";
@@ -74,10 +74,10 @@ export function ExposureChart({ valued }: { valued: ValuedPosition[] }) {
               width={116}
               tickLine={false}
               axisLine={false}
-              tick={{ fill: "#8a8d93", fontSize: 11 }}
+              tick={{ fill: LABEL_INK, fontSize: 11 }}
             />
             <Tooltip
-              cursor={{ fill: "#17181b" }}
+              cursor={{ fill: "var(--color-elevated)" }}
               content={({ payload }) => {
                 const d = payload?.[0]?.payload as (typeof data)[number] | undefined;
                 if (!d) return null;
@@ -103,7 +103,7 @@ export function ExposureChart({ valued }: { valued: ValuedPosition[] }) {
               <LabelList
                 dataKey="pctLabel"
                 position="right"
-                fill="#8a8d93"
+                fill={LABEL_INK}
                 fontSize={10}
                 fontFamily="var(--font-jetbrains)"
               />

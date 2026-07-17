@@ -1,7 +1,7 @@
 "use client";
 
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { GRID_INK, MAGNITUDE_HUE } from "@/config/viz";
+import { AXIS_INK, GRID_INK, MAGNITUDE_HUE } from "@/config/viz";
 import { formatEcon, tickDigits, type EconSeries } from "@/config/econ";
 import type { EconPoint } from "@/data/types";
 
@@ -34,7 +34,7 @@ export function SeriesChart({ series, points }: { series: EconSeries; points: Ec
         <CartesianGrid stroke={GRID_INK} vertical={false} />
         <XAxis
           dataKey="date"
-          tick={{ fill: "#55585f", fontSize: 9 }}
+          tick={{ fill: AXIS_INK, fontSize: 9 }}
           tickLine={false}
           axisLine={{ stroke: GRID_INK }}
           minTickGap={28}
@@ -42,14 +42,14 @@ export function SeriesChart({ series, points }: { series: EconSeries; points: Ec
         />
         <YAxis
           domain={[min - pad, max + pad]}
-          tick={{ fill: "#55585f", fontSize: 9 }}
+          tick={{ fill: AXIS_INK, fontSize: 9 }}
           tickLine={false}
           axisLine={false}
           width={46}
           tickFormatter={(v: number) => compactTick(v, series, min, max)}
         />
         <Tooltip
-          cursor={{ stroke: "#34373d" }}
+          cursor={{ stroke: "var(--color-line-bright)" }}
           content={({ payload, label }) => {
             const p = payload?.[0];
             if (!p) return null;
