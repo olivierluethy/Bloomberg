@@ -10,8 +10,7 @@ import { AssetTable } from "@/components/modules/AssetTable";
 import { WatchlistPanel } from "@/components/watchlists/WatchlistPanel";
 import { useQuotes } from "@/data/hooks";
 import { MARKETS_MOVERS, MARKETS_SUMMARY } from "@/config/universes";
-import { classifySymbol } from "@/data/provider";
-import { formatPercent, formatPrice } from "@/lib/format";
+import { formatPercent, formatPrice, priceDigits } from "@/lib/format";
 import { panelVariants, staggerContainer } from "@/lib/motion";
 import type { Provenance, Quote } from "@/data/types";
 
@@ -90,7 +89,7 @@ function SummaryChip({
   provider?: string;
   pending: boolean;
 }) {
-  const digits = classifySymbol(symbol) === "forex" ? 4 : 2;
+  const digits = priceDigits(symbol, quote?.price);
   const dir = quote && quote.changePercent >= 0 ? "up" : "down";
   return (
     <div className="flex min-w-36 flex-col gap-1 border border-line bg-panel px-3 py-2">

@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn";
 import { Skeleton } from "@/components/primitives/Skeleton";
 import { useFundamentals, useQuote } from "@/data/hooks";
 import { classifySymbol } from "@/data/provider";
-import { formatCompact, formatPrice } from "@/lib/format";
+import { formatCompact, formatPrice, priceDigits } from "@/lib/format";
 
 /**
  * The session/valuation rail of the workspace: today's numbers from the quote,
@@ -22,7 +22,7 @@ export function KeyStats({ symbol }: { symbol: string }) {
   const quote = quoteData?.data;
   const fundamentals = fundData?.data;
   const cls = classifySymbol(symbol);
-  const digits = cls === "forex" ? 4 : cls === "bond" ? 3 : 2;
+  const digits = priceDigits(symbol, quote?.price);
   // Valuation metrics only mean something for company-like instruments.
   const hasValuation = cls === "stock" || cls === "etf";
 

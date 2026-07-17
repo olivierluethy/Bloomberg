@@ -1,7 +1,25 @@
 /**
- * Numeric formatters shared across the terminal. Kept dependency-free and
- * pure so the same output renders on server and client without drift.
+ * Numeric formatters shared across the terminal. Pure, so the same output
+ * renders on server and client without drift.
  */
+
+import { classifySymbol } from "@/data/provider";
+
+/**
+ * How many decimals a price is quoted to, by asset class.
+ *
+ * This lived in six components that quietly disagreed: a bond yield showed
+ * three decimals in the workspace and two on the markets summary chip, and
+ * sub-$1 crypto was rounded to cents in half the app. Same number, different
+ * answer depending on which panel you read it in. One rule, one place.
+ */
+export function priceDigits(symbol: string, price?: number): number {
+  const cls = classifySymbol(symbol);
+  if (cls === "forex") return 4; // pips
+  if (cls === "bond") return 3; // yields move in basis points
+  // Sub-$1 instruments (DOGE, some FX crosses) need the extra places to move.
+  return price !== undefined && price < 10 ? 4 : 2;
+}
 
 export function formatPrice(value: number, digits = 2): string {
   return value.toLocaleString("en-US", {

@@ -6,8 +6,7 @@ import { cn } from "@/lib/cn";
 import { SourceTag } from "@/components/primitives/SourceTag";
 import { Skeleton } from "@/components/primitives/Skeleton";
 import { useOHLCV } from "@/data/hooks";
-import { classifySymbol } from "@/data/provider";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, priceDigits } from "@/lib/format";
 import type { Interval, Range } from "@/data/types";
 import { DEFAULT_INDICATORS, type CrosshairInfo, type IndicatorConfig } from "@/components/charts/types";
 
@@ -65,7 +64,7 @@ export function PriceChart({
   const onCrosshair = useCallback((info: CrosshairInfo | null) => setHover(info), []);
   const toggle = (key: keyof IndicatorConfig) => setConfig((c) => ({ ...c, [key]: !c[key] }));
 
-  const digits = classifySymbol(symbol) === "forex" ? 4 : 2;
+  const digits = priceDigits(symbol, candles.at(-1)?.close);
   const last = candles.at(-1);
   const shown = hover ?? (last ? { open: last.open, high: last.high, low: last.low, close: last.close } : null);
   const barUp = shown ? shown.close >= shown.open : true;

@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/primitives/Skeleton";
 import { assetClassColor } from "@/config/viz";
 import { symbolName } from "@/config/symbols";
 import { classifySymbol } from "@/data/provider";
-import { formatPercent, formatPrice, formatSigned } from "@/lib/format";
+import { formatPercent, formatPrice, formatSigned, priceDigits } from "@/lib/format";
 import { useUIStore } from "@/store/ui";
 import type { ValuedPosition } from "@/lib/portfolio";
 
@@ -79,7 +79,7 @@ export function HoldingsTable({ valued, pending }: { valued: ValuedPosition[]; p
 
 function Row({ p, onOpen }: { p: ValuedPosition; onOpen: () => void }) {
   const cls = classifySymbol(p.symbol);
-  const digits = cls === "forex" ? 4 : 2;
+  const digits = priceDigits(p.symbol, p.price);
 
   return (
     <tr className="group border-b border-line last:border-0 hover:bg-elevated">

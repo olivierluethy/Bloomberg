@@ -12,7 +12,7 @@ import { cn } from "@/lib/cn";
 import { symbolName } from "@/config/symbols";
 import { useQuote } from "@/data/hooks";
 import { classifySymbol } from "@/data/provider";
-import { formatPercent, formatPrice, formatSigned } from "@/lib/format";
+import { formatPercent, formatPrice, formatSigned, priceDigits } from "@/lib/format";
 import { useUIStore } from "@/store/ui";
 import { useActiveWatchlist, useWatchlistStore } from "@/store/watchlists";
 
@@ -82,7 +82,7 @@ function WorkspaceHeader({ symbol, onClose }: { symbol: string; onClose: () => v
   const pinned = Boolean(activeList?.symbols.includes(symbol));
 
   const cls = classifySymbol(symbol);
-  const digits = cls === "forex" ? 4 : cls === "bond" ? 3 : 2;
+  const digits = priceDigits(symbol, quote?.price);
   const dir = quote && quote.changePercent >= 0 ? "up" : "down";
 
   return (

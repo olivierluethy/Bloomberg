@@ -7,8 +7,7 @@ import { SourceTag } from "@/components/primitives/SourceTag";
 import { Sparkline } from "@/components/primitives/Sparkline";
 import { Skeleton } from "@/components/primitives/Skeleton";
 import { useOHLCV, useQuotes } from "@/data/hooks";
-import { classifySymbol } from "@/data/provider";
-import { formatCompact, formatPercent, formatPrice, formatSigned } from "@/lib/format";
+import { formatCompact, formatPercent, formatPrice, formatSigned, priceDigits } from "@/lib/format";
 import { useActiveWatchlist, useWatchlistHydration, useWatchlistStore } from "@/store/watchlists";
 import { useUIStore } from "@/store/ui";
 import type { Provenance, Quote } from "@/data/types";
@@ -22,13 +21,6 @@ interface Row {
   source?: Provenance;
   provider?: string;
   pending: boolean;
-}
-
-function priceDigits(symbol: string, price: number | undefined): number {
-  const cls = classifySymbol(symbol);
-  if (cls === "forex") return 4;
-  if (cls === "bond") return 3;
-  return price !== undefined && price < 10 ? 4 : 2;
 }
 
 /**
