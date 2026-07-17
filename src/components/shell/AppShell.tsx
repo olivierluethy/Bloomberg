@@ -6,6 +6,7 @@ import { LeftNav } from "@/components/shell/LeftNav";
 import { StatusBar } from "@/components/shell/StatusBar";
 import { CommandPalette } from "@/components/search/CommandPalette";
 import { WatchlistManager } from "@/components/watchlists/WatchlistManager";
+import { AssetWorkspace } from "@/components/workspace/AssetWorkspace";
 import { EASE_OUT } from "@/lib/motion";
 
 /**
@@ -49,9 +50,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </motion.div>
 
       {/* Overlays live at the shell level: ⌘K works from any module, and the
-          watchlist editor can be opened from the palette or a panel alike. */}
+          workspace and watchlist editor open over whatever module you're in. */}
       <CommandPalette />
       <WatchlistManager />
+      <AssetWorkspace />
     </div>
   );
 }
