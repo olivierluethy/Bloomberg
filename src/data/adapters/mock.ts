@@ -58,6 +58,18 @@ function priceProfile(cls: AssetClass): PriceProfile {
   }
 }
 
+/** Sectors, each with industries that actually belong to it. */
+const INDUSTRIES = {
+  Technology: ["Semiconductors", "Software — Infrastructure", "Consumer Electronics", "IT Services"],
+  Financials: ["Diversified Banks", "Asset Management", "Insurance — Property & Casualty", "Payment Processing"],
+  Energy: ["Oil & Gas Integrated", "Oil & Gas Midstream", "Renewable Utilities", "Oilfield Services"],
+  Healthcare: ["Pharmaceuticals", "Medical Devices", "Biotechnology", "Healthcare Plans"],
+  Consumer: ["Discount Stores", "Beverages — Non-Alcoholic", "Restaurants", "Household Products"],
+  Industrials: ["Aerospace & Defense", "Railroads", "Building Products", "Farm & Heavy Machinery"],
+} as const satisfies Record<string, readonly string[]>;
+
+const SECTORS = Object.keys(INDUSTRIES) as (keyof typeof INDUSTRIES)[];
+
 function basePrice(symbol: string, cls: AssetClass): number {
   const f = seededFaker(symbol, "base");
   const p = priceProfile(cls);
@@ -174,6 +186,16 @@ export const mockProvider: MarketDataProvider = {
 
   async getFundamentals(symbol) {
     const f = seededFaker(symbol, "fund");
+    const cls = classifySymbol(symbol);
+    const profile = priceProfile(cls);
+    // The 52-week band is derived from the same base price the quote walks
+    // around (±3.2%), so it always brackets the last price. Absolute bounds
+    // would be nonsense across asset classes anyway — a fixed 120–900 high says
+    // nothing about a 1.55 forex pair or a 25k crypto quote.
+    const base = basePrice(symbol, cls);
+    const low52 = Number((base * (1 - f.number.float({ min: 0.12, max: 0.45 }))).toFixed(profile.digits));
+    const high52 = Number((base * (1 + f.number.float({ min: 0.08, max: 0.55 }))).toFixed(profile.digits));
+    const sector = f.helpers.arrayElement(SECTORS);
     return sourced(
       {
         symbol,
@@ -183,10 +205,12 @@ export const mockProvider: MarketDataProvider = {
         eps: f.number.float({ min: -2, max: 22, fractionDigits: 2 }),
         dividendYield: f.number.float({ min: 0, max: 5.5, fractionDigits: 2 }),
         beta: f.number.float({ min: 0.4, max: 2.1, fractionDigits: 2 }),
-        high52: f.number.float({ min: 120, max: 900, fractionDigits: 2 }),
-        low52: f.number.float({ min: 20, max: 110, fractionDigits: 2 }),
-        sector: f.helpers.arrayElement(["Technology", "Financials", "Energy", "Healthcare", "Consumer", "Industrials"]),
-        industry: f.commerce.department(),
+        high52,
+        low52,
+        sector,
+        // Industry must belong to the sector — a Healthcare/Clothing pairing
+        // reads as a bug even though both halves are individually plausible.
+        industry: f.helpers.arrayElement(INDUSTRIES[sector]),
         description: f.company.catchPhrase(),
       },
       "simulated",
