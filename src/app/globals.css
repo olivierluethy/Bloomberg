@@ -22,10 +22,21 @@
   --color-down: #ff4d5e;
   --color-flat: #8a8d93;
 
-  /* Text ramp */
+  /*
+   * Text ramp. Three steps, all of which clear WCAG AA (4.5:1) against every
+   * surface — measured, not eyeballed:
+   *
+   *   fg        14.35:1   fg-dim  6.74:1   fg-faint  4.93:1   (vs --color-elevated)
+   *
+   * fg-faint used to be #55585f, which reads beautifully and scored 2.49:1 —
+   * an axe pass found it failing on ~250 nodes per screen, because it's what
+   * every .eyebrow is made of. Raising it alone would have collapsed it into
+   * fg-dim, so the middle step moved up too and the ramp keeps its three
+   * distinguishable levels.
+   */
   --color-fg: #e6e7e9;
-  --color-fg-dim: #8a8d93;
-  --color-fg-faint: #55585f;
+  --color-fg-dim: #9ba0a6;
+  --color-fg-faint: #83878f;
 
   /* Typography */
   --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;

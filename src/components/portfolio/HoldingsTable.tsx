@@ -121,7 +121,9 @@ function Row({ p, onOpen }: { p: ValuedPosition; onOpen: () => void }) {
               color={p.unrealizedPnL >= 0 ? "up" : "down"}
               className="px-0"
             />
-            <span className={cn("font-mono text-2xs tabular-nums", p.unrealizedPnL >= 0 ? "text-up/70" : "text-down/70")}>
+            {/* Full-strength up/down: at 70% the red dropped under AA contrast.
+                Size already carries the hierarchy, so opacity needn't. */}
+            <span className={cn("font-mono text-2xs tabular-nums", p.unrealizedPnL >= 0 ? "text-up" : "text-down")}>
               {formatPercent(p.unrealizedPct)}
             </span>
           </div>
