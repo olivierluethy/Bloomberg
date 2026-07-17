@@ -1,5 +1,5 @@
-import { PlaceholderModule } from "@/components/modules/PlaceholderModule";
+import { EconomyModule } from "@/components/modules/EconomyModule";
 
 export default function Page() {
-  return <PlaceholderModule moduleId="economy" />;
+  return <EconomyModule />;
 }
