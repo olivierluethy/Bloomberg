@@ -29,6 +29,12 @@ interface UIState {
   openModal: (kind: ModalKind) => void;
   closeModal: () => void;
   closeAllModals: () => void;
+
+  /** Symbol shown in the asset-detail workspace, or null when it's closed. */
+  workspaceSymbol: string | null;
+  workspaceSeq: number;
+  openWorkspace: (symbol: string) => void;
+  closeWorkspace: () => void;
 }
 
 export const useUIStore = create<UIState>()((set) => ({
@@ -49,6 +55,13 @@ export const useUIStore = create<UIState>()((set) => ({
     ),
   closeModal: () => set((s) => ({ modals: s.modals.slice(0, -1) })),
   closeAllModals: () => set({ modals: [] }),
+
+  workspaceSymbol: null,
+  workspaceSeq: 0,
+  // Opening the workspace dismisses the palette: it's a jump, not a stack.
+  openWorkspace: (symbol) =>
+    set((s) => ({ workspaceSymbol: symbol, workspaceSeq: s.workspaceSeq + 1, paletteOpen: false })),
+  closeWorkspace: () => set({ workspaceSymbol: null }),
 }));
 
 /** True when `kind` is the modal currently on top of the stack. */
