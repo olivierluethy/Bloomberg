@@ -11,8 +11,10 @@ import { useWatchlistHydration, useWatchlistStore } from "@/store/watchlists";
  * Watchlist editor: create, rename, reorder, and delete lists, and curate the
  * symbols inside the selected one.
  *
- * Reordering is ↑/↓ buttons rather than drag — they're keyboard-reachable and
- * screen-reader-legible, and the persisted drag layout is Phase 10's job.
+ * Symbols reorder by dragging or with the ↑/↓ buttons. Both, deliberately:
+ * dragging is the fast path, but it can't be reached by keyboard and says
+ * nothing to a screen reader, so it's an addition to the buttons and never a
+ * replacement for them.
  */
 export function WatchlistManager() {
   const open = useIsModalOpen("watchlists");
@@ -44,6 +46,12 @@ function ManagerBody({ onClose }: { onClose: () => void }) {
   // Which list is being edited in this dialog — not necessarily the active one.
   const [selectedId, setSelectedId] = useState(activeId);
   const selected = lists.find((l) => l.id === selectedId) ?? lists[0];
+
+  // Drag-reorder state. The ↑/↓ buttons stay: dragging is the fast path, but it
+  // is not reachable by keyboard or announced to a screen reader, so it can only
+  // ever be an addition to them, never a replacement.
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
 
   return (
     <>
@@ -112,8 +120,40 @@ function ManagerBody({ onClose }: { onClose: () => void }) {
               {selected.symbols.map((symbol, i) => (
                 <li
                   key={symbol}
-                  className="group flex items-center gap-2 border-b border-line px-3 py-1.5 last:border-0 hover:bg-elevated"
+                  draggable
+                  onDragStart={(e) => {
+                    setDragIndex(i);
+                    e.dataTransfer.effectAllowed = "move";
+                    // Firefox refuses to start a drag without payload.
+                    e.dataTransfer.setData("text/plain", symbol);
+                  }}
+                  onDragOver={(e) => {
+                    if (dragIndex === null) return;
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                    setOverIndex(i);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    if (dragIndex !== null && dragIndex !== i) moveSymbol(selected.id, dragIndex, i);
+                    setDragIndex(null);
+                    setOverIndex(null);
+                  }}
+                  onDragEnd={() => {
+                    setDragIndex(null);
+                    setOverIndex(null);
+                  }}
+                  className={cn(
+                    "group flex cursor-grab items-center gap-2 border-b border-line px-3 py-1.5 last:border-0 hover:bg-elevated",
+                    dragIndex === i && "opacity-40",
+                    // The insertion point, drawn on the edge the row will land on.
+                    overIndex === i && dragIndex !== null && dragIndex !== i &&
+                      (dragIndex < i ? "border-b-amber" : "border-t border-t-amber"),
+                  )}
                 >
+                  <span className="w-3 shrink-0 text-center font-mono text-2xs text-fg-faint opacity-0 transition-opacity group-hover:opacity-100" aria-hidden>
+                    ⠿
+                  </span>
                   <span className="w-24 shrink-0 font-mono text-sm text-fg">{symbol}</span>
                   <span className="min-w-0 flex-1 truncate text-sm text-fg-dim">{symbolName(symbol)}</span>
                   <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
