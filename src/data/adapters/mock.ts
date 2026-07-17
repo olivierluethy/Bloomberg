@@ -1,5 +1,6 @@
 import { Faker, en } from "@faker-js/faker";
 import { classifySymbol, sourced } from "@/data/provider";
+import { findSeries, mockProfile } from "@/config/econ";
 import type { MarketDataProvider } from "@/data/provider";
 import type {
   AnalystRating,
@@ -69,6 +70,10 @@ const INDUSTRIES = {
 } as const satisfies Record<string, readonly string[]>;
 
 const SECTORS = Object.keys(INDUSTRIES) as (keyof typeof INDUSTRIES)[];
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
 
 function basePrice(symbol: string, cls: AssetClass): number {
   const f = seededFaker(symbol, "base");
@@ -261,13 +266,32 @@ export const mockProvider: MarketDataProvider = {
 
   async getEconomicSeries(seriesId) {
     const f = seededFaker(seriesId, "econ");
+    const series = findSeries(seriesId);
+    // Each indicator walks around its own real-world level. An anonymous 1–8
+    // walk would render CPI and the unemployment rate as the same line at the
+    // same height — data that looks authoritative and means nothing.
+    const profile = mockProfile(seriesId) ?? { level: 4, step: 0.2, min: 0 };
+    const quarterly = series?.frequency === "quarterly";
+    const count = quarterly ? 24 : 36;
     const now = new Date();
-    let value = f.number.float({ min: 1, max: 8, fractionDigits: 2 });
-    const points = Array.from({ length: 36 }).map((_, i) => {
-      value = Math.max(0, value + f.number.float({ min: -0.25, max: 0.25, fractionDigits: 2 }));
-      const d = new Date(now.getFullYear(), now.getMonth() - (35 - i), 1);
-      return { date: d.toISOString().slice(0, 10), value: Number(value.toFixed(2)) };
-    });
+
+    // Walk BACKWARDS from the profile level, so the latest point lands exactly on
+    // it and history wanders behind. Walking forwards let each series drift wherever
+    // it liked: ten independently-drifting maturities turned the yield curve into a
+    // scribble (1Y above 3M above 10Y), because the shape lives across series and a
+    // per-series random walk can't know about it. Anchoring the tip keeps the curve
+    // the shape the catalog describes while the history still moves.
+    let value = profile.level;
+    const points: { date: string; value: number }[] = [];
+    for (let back = 0; back < count; back++) {
+      const d = quarterly
+        ? new Date(now.getFullYear(), now.getMonth() - back * 3, 1)
+        : new Date(now.getFullYear(), now.getMonth() - back, 1);
+      points.push({ date: d.toISOString().slice(0, 10), value: Number(value.toFixed(2)) });
+      const drift = f.number.float({ min: -profile.step, max: profile.step, fractionDigits: 4 });
+      value = clamp(value - drift, profile.min ?? -Infinity, profile.max ?? Infinity);
+    }
+    points.reverse(); // oldest → newest, as every consumer expects
     return sourced(points, "simulated", PROVIDER);
   },
 
