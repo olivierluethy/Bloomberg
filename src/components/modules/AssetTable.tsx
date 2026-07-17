@@ -10,6 +10,7 @@ import { useOHLCV, useQuotes } from "@/data/hooks";
 import { classifySymbol } from "@/data/provider";
 import { formatCompact, formatPercent, formatPrice, formatSigned } from "@/lib/format";
 import { useActiveWatchlist, useWatchlistHydration, useWatchlistStore } from "@/store/watchlists";
+import { useUIStore } from "@/store/ui";
 import type { Provenance, Quote } from "@/data/types";
 
 type SortKey = "symbol" | "price" | "change" | "changePercent" | "volume";
@@ -194,6 +195,7 @@ function QuoteRow({
   pinned: boolean;
   onTogglePin: () => void;
 }) {
+  const openWorkspace = useUIStore((s) => s.openWorkspace);
   const q = row.quote!;
   const dir = q.changePercent >= 0 ? "up" : "down";
   const digits = priceDigits(row.symbol, q.price);
@@ -202,7 +204,14 @@ function QuoteRow({
       <td className="px-3 py-1.5">
         <div className="flex items-center gap-2">
           {showPin && <PinButton symbol={row.symbol} pinned={pinned} onToggle={onTogglePin} />}
-          <span className="font-mono text-sm font-medium text-fg">{row.symbol}</span>
+          <button
+            type="button"
+            onClick={() => openWorkspace(row.symbol)}
+            className="font-mono text-sm font-medium text-fg transition-colors hover:text-amber"
+            title={`Open ${row.symbol} workspace`}
+          >
+            {row.symbol}
+          </button>
           <SourceTag source={row.source} provider={row.provider} className="opacity-0 transition-opacity group-hover:opacity-100" />
         </div>
       </td>
