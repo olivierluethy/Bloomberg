@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 import { cn } from "@/lib/cn";
+import { useLayoutHydration, useLayoutStore } from "@/store/layout";
 import {
   DEV_MODULES,
   MODULE_GROUPS,
@@ -20,7 +20,12 @@ import {
 export function LeftNav() {
   const pathname = usePathname();
   const active = findModuleByHref(pathname);
-  const [collapsed, setCollapsed] = useState(false);
+  // Collapsed state is layout, so it lives in the persisted layout store rather
+  // than local state — and ⌘B drives the same switch as the footer button.
+  const hydrated = useLayoutHydration();
+  const stored = useLayoutStore((s) => s.navCollapsed);
+  const toggleNav = useLayoutStore((s) => s.toggleNav);
+  const collapsed = hydrated && stored;
   const showDev = process.env.NODE_ENV !== "production" && DEV_MODULES.length > 0;
 
   return (
@@ -57,9 +62,10 @@ export function LeftNav() {
 
       <button
         type="button"
-        onClick={() => setCollapsed((c) => !c)}
+        onClick={toggleNav}
         className="flex h-8 items-center justify-center border-t border-line text-fg-faint transition-colors hover:bg-elevated hover:text-fg-dim"
         aria-label={collapsed ? "Expand navigation" : "Collapse navigation"}
+        aria-keyshortcuts="Meta+B Control+B"
       >
         <span className="font-mono text-sm" aria-hidden>{collapsed ? "»" : "«"}</span>
       </button>
