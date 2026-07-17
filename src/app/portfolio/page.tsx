@@ -1,5 +1,5 @@
-import { PlaceholderModule } from "@/components/modules/PlaceholderModule";
+import { PortfolioModule } from "@/components/modules/PortfolioModule";
 
 export default function Page() {
-  return <PlaceholderModule moduleId="portfolio" />;
+  return <PortfolioModule />;
 }
