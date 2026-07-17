@@ -142,3 +142,37 @@ export function formatEcon(value: number, units: EconUnit): string {
       return value.toFixed(1);
   }
 }
+
+/**
+ * Formats a change, which is not the same as formatting a level. A bare
+ * "-4.20 vs prior" under a payrolls figure reading 158.5M is unreadable: the
+ * number is in thousands, so it means 4,200 jobs. And a move in a rate is
+ * percentage points, not percent — a 0.03 change in a 4.6% rate is +0.03pp,
+ * whereas "+0.03%" would say something different and false.
+ */
+export function formatEconDelta(value: number, units: EconUnit): string {
+  const sign = value >= 0 ? "+" : "−";
+  const v = Math.abs(value);
+  switch (units) {
+    case "percent":
+      return `${sign}${v.toFixed(2)}pp`;
+    case "usd_billions":
+      return `${sign}$${v.toFixed(1)}B`;
+    case "thousands":
+      return `${sign}${v.toFixed(0)}K`;
+    default:
+      return `${sign}${v.toFixed(2)}`;
+  }
+}
+
+/**
+ * Decimals an axis needs so its ticks stay distinct. A series that only moves
+ * between 308.0 and 310.9 rendered "311, 310, 309, 308, 308" at zero decimals —
+ * two ticks with the same label at different heights.
+ */
+export function tickDigits(min: number, max: number): number {
+  const span = Math.abs(max - min);
+  if (span >= 20) return 0;
+  if (span >= 2) return 1;
+  return 2;
+}
