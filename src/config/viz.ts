@@ -59,6 +59,22 @@ export function assetClassColor(cls: AssetClass): string {
   return cls === "unknown" ? "#55585f" : ASSET_CLASS_COLORS[cls];
 }
 
+/** Display names — `capitalize` turns "etf" into "Etf", which reads as a typo. */
+const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
+  stock: "Stocks",
+  etf: "ETFs",
+  crypto: "Crypto",
+  commodity: "Commodities",
+  forex: "FX",
+  bond: "Bonds",
+  index: "Indices",
+  unknown: "Other",
+};
+
+export function assetClassLabel(cls: AssetClass): string {
+  return ASSET_CLASS_LABELS[cls];
+}
+
 /**
  * Single hue for magnitude bars (sector exposure). Nominal categories whose
  * length already encodes the value take one hue — colouring them by value would
