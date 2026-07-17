@@ -1,7 +1,7 @@
 import { useQueries, useQuery } from "@tanstack/react-query";
 import { apiClientProvider as api } from "@/data/api-client";
 import { qk, staleTimes } from "@/data/query";
-import type { DateRange, Interval, NewsQuery, Quote, Range, Sourced } from "@/data/types";
+import type { DateRange, Fundamentals, Interval, NewsQuery, Quote, Range, Sourced } from "@/data/types";
 import type { UseQueryResult } from "@tanstack/react-query";
 
 /**
@@ -65,6 +65,20 @@ export function useFundamentals(symbol?: string) {
     queryFn: () => api.getFundamentals(symbol as string),
     enabled: Boolean(symbol),
     staleTime: staleTimes.fundamentals,
+  });
+}
+
+/**
+ * Batch fundamentals, for panels that classify a whole holdings list at once.
+ * Shares its cache entries with any single useFundamentals elsewhere.
+ */
+export function useFundamentalsBatch(symbols: string[]): UseQueryResult<Sourced<Fundamentals>>[] {
+  return useQueries({
+    queries: symbols.map((symbol) => ({
+      queryKey: qk.fundamentals(symbol),
+      queryFn: () => api.getFundamentals(symbol),
+      staleTime: staleTimes.fundamentals,
+    })),
   });
 }
 
