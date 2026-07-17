@@ -28,7 +28,8 @@ export function MarketsOverview() {
       <SummaryStrip />
 
       <div className="flex min-h-0 flex-1 gap-3">
-        <ResizablePanel axis="x" defaultSize={320} min={240} max={520} className="h-full">
+        {/* id → the drag survives a reload (see store/layout). */}
+        <ResizablePanel id="markets.watchlist" axis="x" defaultSize={320} min={240} max={520} className="h-full">
           <WatchlistPanel />
         </ResizablePanel>
 

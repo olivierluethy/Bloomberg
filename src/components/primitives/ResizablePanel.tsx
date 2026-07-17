@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState } from "react";
 import { cn } from "@/lib/cn";
+import { usePanelSize, useLayoutStore } from "@/store/layout";
 
 /**
  * The single resizable-panel primitive for the whole app. Later phases compose
@@ -11,6 +12,7 @@ import { cn } from "@/lib/cn";
  * `separator` with arrow-key support, so resizing works without a mouse.
  */
 export function ResizablePanel({
+  id,
   axis = "x",
   defaultSize,
   min = 160,
@@ -20,6 +22,8 @@ export function ResizablePanel({
   className,
   children,
 }: {
+  /** Give an id to persist this panel's size across reloads. */
+  id?: string;
   axis?: "x" | "y";
   defaultSize: number;
   min?: number;
@@ -31,15 +35,32 @@ export function ResizablePanel({
   className?: string;
   children: React.ReactNode;
 }) {
-  const [size, setSize] = useState(defaultSize);
+  // The persisted size is the source of truth once storage has answered; until
+  // then it's the default, so the server and first client render agree.
+  const persisted = usePanelSize(id, defaultSize);
+  const setPanelSize = useLayoutStore((s) => s.setPanelSize);
+
+  // Drag state stays local so a pointer move doesn't write to storage on every
+  // frame; the settled size is committed on release and on each keyboard step.
+  const [dragSize, setDragSize] = useState<number | null>(null);
+  const size = dragSize ?? persisted;
+
   const dragging = useRef(false);
   const origin = useRef({ pos: 0, size: defaultSize });
 
   const clamp = useCallback((n: number) => Math.min(max, Math.max(min, n)), [min, max]);
 
+  const commit = useCallback(
+    (next: number) => {
+      if (id) setPanelSize(id, next);
+    },
+    [id, setPanelSize],
+  );
+
   const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     dragging.current = true;
     origin.current = { pos: axis === "x" ? e.clientX : e.clientY, size };
+    setDragSize(size);
     e.currentTarget.setPointerCapture(e.pointerId);
   };
 
@@ -48,11 +69,14 @@ export function ResizablePanel({
     const current = axis === "x" ? e.clientX : e.clientY;
     let delta = current - origin.current.pos;
     if (handleSide === "start") delta = -delta;
-    setSize(clamp(origin.current.size + delta));
+    setDragSize(clamp(origin.current.size + delta));
   };
 
   const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragging.current) return;
     dragging.current = false;
+    if (dragSize !== null) commit(dragSize);
+    setDragSize(null);
     if (e.currentTarget.hasPointerCapture(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId);
     }
@@ -62,12 +86,16 @@ export function ResizablePanel({
     const grow = axis === "x" ? "ArrowRight" : "ArrowDown";
     const shrink = axis === "x" ? "ArrowLeft" : "ArrowUp";
     const sign = handleSide === "start" ? -1 : 1;
-    if (e.key === grow) setSize((s) => clamp(s + step * sign));
-    else if (e.key === shrink) setSize((s) => clamp(s - step * sign));
-    else if (e.key === "Home") setSize(min);
-    else if (e.key === "End") setSize(max);
+    let next: number;
+    if (e.key === grow) next = clamp(size + step * sign);
+    else if (e.key === shrink) next = clamp(size - step * sign);
+    else if (e.key === "Home") next = min;
+    else if (e.key === "End") next = max;
     else return;
     e.preventDefault();
+    // Keyboard resizing has no "release", so each step commits.
+    if (id) commit(next);
+    else setDragSize(next);
   };
 
   const isX = axis === "x";
