@@ -78,6 +78,21 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
+/**
+ * Snaps a date to the nearest following weekday, as an ISO date string.
+ *
+ * Earnings, macro releases and IPO pricings are exchange/agency events — none of
+ * them land on a Saturday. Faker will happily pick one, and a calendar row
+ * reading "SAT, AUG 22" is the tell that the data is invented.
+ */
+function weekdayISO(date: Date): string {
+  const d = new Date(date);
+  const day = d.getUTCDay();
+  if (day === 6) d.setUTCDate(d.getUTCDate() + 2); // Saturday → Monday
+  else if (day === 0) d.setUTCDate(d.getUTCDate() + 1); // Sunday → Monday
+  return d.toISOString().slice(0, 10);
+}
+
 function basePrice(symbol: string, cls: AssetClass): number {
   const f = seededFaker(symbol, "base");
   const p = priceProfile(cls);
@@ -317,7 +332,7 @@ export const mockProvider: MarketDataProvider = {
     ];
 
     const events: EconomicEvent[] = releases.map((r, i) => {
-      const date = f.date.between({ from: range.from, to: range.to }).toISOString().slice(0, 10);
+      const date = weekdayISO(f.date.between({ from: range.from, to: range.to }));
       const scale = r.unit === "K" ? 200 : r.unit === "M" ? 1.5 : 4;
       const previous = Number((f.number.float({ min: 0.1, max: 1 }) * scale).toFixed(2));
       const forecast = Number((previous * f.number.float({ min: 0.9, max: 1.1 })).toFixed(2));
@@ -346,7 +361,7 @@ export const mockProvider: MarketDataProvider = {
     const f = seededFaker(range.from, range.to, "ipo");
     const today = new Date().toISOString().slice(0, 10);
     const events: IpoEvent[] = Array.from({ length: 8 }).map((_, i) => {
-      const date = f.date.between({ from: range.from, to: range.to }).toISOString().slice(0, 10);
+      const date = weekdayISO(f.date.between({ from: range.from, to: range.to }));
       const priceLow = Number(f.number.float({ min: 8, max: 40, fractionDigits: 2 }).toFixed(2));
       // Invariant: the range is a range — low below high.
       const priceHigh = Number((priceLow * f.number.float({ min: 1.05, max: 1.35 })).toFixed(2));
@@ -373,7 +388,7 @@ export const mockProvider: MarketDataProvider = {
     const tickers = ["AAPL", "MSFT", "NVDA", "AMZN", "TSLA", "META", "GOOGL", "JPM", "XOM", "WMT"];
     const events = tickers.map((symbol) => ({
       symbol,
-      date: f.date.between({ from: range.from, to: range.to }).toISOString().slice(0, 10),
+      date: weekdayISO(f.date.between({ from: range.from, to: range.to })),
       epsEstimate: f.number.float({ min: 0.2, max: 6, fractionDigits: 2 }),
       time: f.helpers.arrayElement<"bmo" | "amc" | "dmh">(["bmo", "amc", "dmh"]),
     }));
