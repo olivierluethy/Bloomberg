@@ -1,10 +1,38 @@
-# Bloomberg-Inspired Financial Dashboard — Architecture & Implementation Plan
+# TERM — Architecture
 
-> **Phase 0 deliverable — greenfield adaptation.** The original plan assumed an existing
-> visual-only prototype to audit. The repository is empty, so there is nothing to audit;
-> this document replaces "audit findings" with a from-scratch architecture plan and a
-> phase-by-phase build order. **No code has been written.** Nothing here is final until you
-> sign off — this is the cheapest point to redirect.
+> **Status: built.** Phases 0–11 are complete. This began as a Phase 0 plan written
+> before any code existed; it's kept as the design record, updated where the build
+> taught us something the plan didn't know. The phase table at §6 is now a log
+> rather than a forecast, and §7's open questions are answered.
+>
+> For how to run it, see [README.md](./README.md).
+
+## Build notes — what the plan got wrong
+
+Worth recording, because every one of these cost real debugging time:
+
+- **The simulator was the main source of bugs, not the real adapters.** Wrong
+  simulated data looks exactly like right simulated data, and nothing fails. A
+  price sat above its own 52-week high; CPI and the unemployment rate rendered as
+  the same line; the yield curve came out a scribble because ten maturities each
+  walked independently; an IPO priced on a Saturday. All were found by *reading
+  the rendered screen*, none by the type system. The invariants are now pinned in
+  `src/data/adapters/mock.test.ts`.
+- **Framer Motion ignores the reduced-motion CSS rule.** The `@media
+  (prefers-reduced-motion)` block in `globals.css` only neutralises CSS
+  animations; JS-driven transforms sail straight past it. Every animated
+  component has to check `useReducedMotion()` itself.
+- **Reopening an overlay during its exit animation reuses the component.**
+  AnimatePresence interrupts the exit rather than remounting, so state that was
+  assumed to reset on unmount silently survives. Overlay bodies are keyed by an
+  open counter for this reason.
+- **`ResponsiveContainer` collapses to zero inside a `min-h-0` flex column,** and
+  a Recharts bar with no category axis renders at zero height. Both produced
+  charts that were structurally present and completely invisible — a test that
+  counts SVG nodes passes right through it.
+- **A design token copied as a hex literal will drift.** The chart axes kept the
+  old grey after the text ramp was raised for contrast, leaving the labels at
+  2.5:1 while the rest of the app was fixed.
 
 ---
 
@@ -12,7 +40,7 @@
 
 | Concern | Choice | Notes |
 | --- | --- | --- |
-| Framework | **Next.js 15 (App Router)** | React Server Components where useful; most panels are client components (live data, charts). |
+| Framework | **Next.js 16 (App Router)** | React Server Components where useful; most panels are client components (live data, charts). |
 | Language | **TypeScript, `strict: true`** | `noUncheckedIndexedAccess` on too. No `any` without a justifying comment. |
 | Styling | **Tailwind CSS v4** | Tailwind-only. Dark mode only — no `dark:` variants needed, the base theme *is* dark. |
 | Server state | **TanStack Query v5** | All API/mock reads. Owns caching, stale time, retry/backoff. |
@@ -21,7 +49,8 @@
 | Charts (analytical) | **Recharts** | Portfolio allocation / sector exposure / macro series only. |
 | Animation | **Framer Motion** | Panel mount/unmount, tab/modal transitions. |
 | Fake data | **@faker-js/faker** | Deterministic seeding so mocks are stable across renders. |
-| Package manager | **pnpm** | Detected locally (pnpm 9, Node 22). |
+| Package manager | **pnpm** | pnpm 9, Node 20+ (22 recommended). |
+| Tests | **Vitest** | Added in Phase 11 for the pure layers; the UI is verified by driving the real app. |
 
 **Rationale for the RSC-light stance:** this is a live-data terminal. Almost every panel
 subscribes to changing quotes, so trying to render them on the server buys little and
@@ -48,9 +77,9 @@ this anyway). Keys go in `.env.local`, never committed.
 estimates, ownership structure, IPO calendar. These are generated with Faker under
 internal-consistency rules (bid < ask, monotonic-ish price walks, weights that sum to 100%).
 
-> **Decision to sanity-check #1:** OHLCV comes from **Twelve Data**, not Finnhub. If you have a
-> paid Finnhub/Polygon/Alpha Vantage key, tell me and I'll make it the primary adapter — the
-> interface below makes that a one-adapter swap.
+> **Decided:** OHLCV comes from **Twelve Data**, not Finnhub. Swapping in a paid
+> Finnhub/Polygon/Alpha Vantage key is a one-adapter change — the interface below is what makes
+> that true, and it held: CoinGecko, FRED and NewsAPI were all added without touching a component.
 
 ---
 
@@ -74,6 +103,8 @@ interface MarketDataProvider {
   getOwnership(symbol: string): Promise<Sourced<Ownership>>;                    // mock
   getEconomicSeries(seriesId: string): Promise<Sourced<EconPoint[]>>;          // FRED
   getEarningsCalendar(range: DateRange): Promise<Sourced<EarningsEvent[]>>;
+  getEconomicCalendar(range: DateRange): Promise<Sourced<EconomicEvent[]>>;  // mock (Phase 9)
+  getIpoCalendar(range: DateRange): Promise<Sourced<IpoEvent[]>>;            // mock (Phase 9)
   search(query: string): Promise<Sourced<SearchResult[]>>;
 }
 ```
@@ -90,9 +121,9 @@ Component → useQuote() hook (TanStack Query) → RoutingProvider → { Finnhub
 Every adapter maps its raw payload into our normalized types, so swapping providers never touches
 a component. TanStack Query keys are `[method, ...args]`, so caching/dedup/backoff live in one place.
 
-> **Decision to sanity-check #2:** the fallback is *silent* to the user but *labeled* (the point
-> falls back to `simulated` and the dev indicator shows it). Alternative is a visible toast on
-> degradation. I'm defaulting to labeled-but-quiet.
+> **Decided:** the fallback is *silent* but *labeled* — the datum falls back to `simulated` and
+> its SourceTag says so. This proved right in practice: CoinGecko rate-limits (429) constantly
+> during development, and a toast per degraded panel would have been unusable noise.
 
 ---
 
@@ -103,7 +134,7 @@ src/
   app/
     layout.tsx                 # root shell: command bar, left nav, status bar, providers
     page.tsx                   # Markets overview (default module)
-    (modules)/                 # lazy-loaded, code-split routes per asset class
+    stocks/ etfs/ …            # one route per module (flat; no route group was needed)
       stocks/page.tsx
       etfs/page.tsx
       indices/page.tsx
@@ -149,36 +180,58 @@ so adding a module is one entry, not four edits.
 
 ---
 
-## 6. Phase-by-phase build order (greenfield-adapted)
+## 6. Phase-by-phase build log
 
-| Phase | What it becomes on a greenfield repo | Ends with |
+All phases are complete. Each ended with a green build, Conventional Commits, and a
+written summary of what was real vs mocked.
+
+| Phase | Delivered | |
 | --- | --- | --- |
-| **0 (this doc)** | Architecture plan + folder structure + API selection. No code. | ⛔ your sign-off |
-| **1** | Scaffold Next.js/TS/Tailwind, design tokens, app shell, `ResizablePanel`, skeletons, motion set. Static placeholder data. | build green + commit |
-| **2** | Data layer: interface, `RoutingProvider`, Finnhub + Twelve Data + CoinGecko + FRED adapters, Faker mocks, TanStack Query config, dev provenance indicator, one proof-of-life test panel. | interface frozen |
-| **3** | 8 asset-class panels (quote + sparkline + sortable list), lazy-loaded, skeletons. | spot-check real data |
-| **4** | `<PriceChart/>` — candles/volume/zoom/crosshair + SMA/EMA/Bollinger/RSI/MACD overlays. | reused component |
-| **5** | News feed panel → NewsAPI with mock fallback. | — |
-| **6** | Cmd/Ctrl+K command palette + watchlists (create/pin/reorder, modal editing). | — |
-| **7** | Asset-detail workspace as modal overlay (chart + stats + fundamentals + related news + mocked estimates/ownership). | — |
-| **8** | Virtual portfolio — **real** weighted-return & cost-basis math over (possibly mocked) instruments; Recharts allocation/exposure. | — |
-| **9** | Economic dashboard (FRED) + earnings/economic/IPO calendars. | — |
-| **10** | Keyboard workflow, draggable persisted layout, transition/empty-state polish. No new data. | — |
-| **11** | Hardening: dedup, type/accessibility/lazy-loading audit, zero TS errors, README. | reference-ready |
+| **0** | Architecture plan + folder structure + API selection. | ✅ |
+| **1** | Scaffold Next.js/TS/Tailwind, design tokens, app shell, `ResizablePanel`, skeletons, motion set. Static placeholder data. | ✅ |
+| **2** | Data layer: interface, `RoutingProvider`, Finnhub + Twelve Data + CoinGecko + FRED adapters, Faker mocks, TanStack Query config, dev provenance indicator, one proof-of-life test panel. | ✅ |
+| **3** | 8 asset-class panels (quote + sparkline + sortable list), lazy-loaded, skeletons. | ✅ |
+| **4** | `<PriceChart/>` — candles/volume/zoom/crosshair + SMA/EMA/Bollinger/RSI/MACD overlays. | ✅ |
+| **5** | News feed panel → NewsAPI with mock fallback. | ✅ |
+| **6** | Cmd/Ctrl+K command palette + watchlists (create/pin/reorder, modal editing). | ✅ |
+| **7** | Asset-detail workspace as modal overlay (chart + stats + fundamentals + related news + mocked estimates/ownership). | ✅ |
+| **8** | Virtual portfolio — **real** weighted-return & cost-basis math over (possibly mocked) instruments; Recharts allocation/exposure. | ✅ |
+| **9** | Economic dashboard (FRED) + earnings/economic/IPO calendars. | ✅ |
+| **10** | Keyboard workflow, draggable persisted layout, transition/empty-state polish. No new data. | ✅ |
+| **11** | Hardening: dedup, type/accessibility/lazy-loading audit, zero TS errors, README. | ✅ |
 
-Each phase = one session, ends with build + Conventional Commit + a written summary of what's
-real vs mocked, then **stops**. Phases 3–9 are reorderable (e.g. Charting before Core Modules) —
-say the word and I'll swap the order.
+Two additions the plan didn't foresee, both added in Phase 11:
+
+- **Vitest** over the pure layers (portfolio maths, simulator invariants, formatters,
+  fuzzy matching). The plan had no testing story; the maths needed one.
+- **Browser verification** per phase, driving the real app in headless Chrome. This is
+  what caught the bugs the type system couldn't see, and it's the reason the phases
+  above were signed off rather than assumed.
 
 ---
 
-## 7. Decisions I need you to sanity-check before Phase 1
+## 7. Decisions, as settled
 
-1. **OHLCV source = Twelve Data** (Finnhub candles went premium). Swap if you have a paid key. — §2
-2. **Silent-but-labeled mock fallback** vs a visible degradation toast. Defaulting to labeled-quiet. — §3
-3. **Tailwind v4** (latest) vs v3 (more third-party examples). Defaulting to v4.
-4. **Next.js over pure Vite/React.** The plan named Next; confirming, since it shapes routing/code-splitting.
-5. **`git init` happens in Phase 1** (first commit = scaffold). This Phase 0 leaves the repo un-initialized on purpose.
+The Phase 0 open questions, and how they turned out:
+
+1. **OHLCV source = Twelve Data** (Finnhub candles went premium). Held — and the adapter
+   boundary made the choice cheap to revisit. — §2
+2. **Silent-but-labeled mock fallback.** Held, and vindicated: CoinGecko 429s are routine, and
+   a toast per degraded panel would have been noise. — §3
+3. **Tailwind v4.** Held. The `@theme` token block is the single source of truth for the
+   palette, which is what made the Phase 11 contrast fix a two-line change.
+4. **Next.js over pure Vite/React.** Held. Route-level code splitting is real: Recharts
+   (~390 kB) ships only on `/portfolio` and `/economy`; the price chart's canvas is behind
+   `next/dynamic` and loads on demand.
+5. **`git init` in Phase 1.** Done.
+
+## 7a. Build environment
+
+Node 20+ and pnpm 9. One local wrinkle worth recording: this repo lives on an **exFAT
+volume**, which cannot build in place — exFAT rejects symlinks, which pnpm and
+`node_modules/.bin` both require. Builds run from a copy on a local ext4 disk. `git config
+core.fileMode false` is set for the same reason: exFAT reports every file as 0755 and
+otherwise every file looks modified.
 
 ## 8. Top risks
 
