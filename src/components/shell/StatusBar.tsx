@@ -1,12 +1,31 @@
+"use client";
+
 import { DataCell } from "@/components/primitives/DataCell";
 import { formatPercent, formatPrice } from "@/lib/format";
 import { cn } from "@/lib/cn";
+import { useUIStore } from "@/store/ui";
 
 /**
  * Bottom status bar. Shows market state, a strip of benchmark indices, and —
  * importantly — the global data-provenance indicator. Everything here is static
  * placeholder content in Phase 1; real values arrive with the Phase 2 data layer.
  */
+
+/** Opens the keyboard reference — the map is worthless if it's a secret. */
+function ShortcutsHint() {
+  const openModal = useUIStore((s) => s.openModal);
+  return (
+    <button
+      type="button"
+      onClick={() => openModal("shortcuts")}
+      title="Keyboard shortcuts"
+      className="hidden shrink-0 items-center gap-1.5 text-fg-faint transition-colors hover:text-fg-dim sm:flex"
+    >
+      <kbd className="border border-line px-1 py-px font-mono text-2xs">?</kbd>
+      <span className="text-2xs">keys</span>
+    </button>
+  );
+}
 
 interface IndexChip {
   label: string;
@@ -56,6 +75,9 @@ export function StatusBar() {
         <span aria-hidden>◇</span>
         <span className="tabular-nums">42ms</span>
       </span>
+
+      {/* The keyboard map is worthless if nobody knows it exists. */}
+      <ShortcutsHint />
 
       {/* Dev-only provenance indicator — replaced by per-datum tags in Phase 2 */}
       <span

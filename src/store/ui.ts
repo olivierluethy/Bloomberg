@@ -8,7 +8,7 @@ import { create } from "zustand";
  */
 
 /** Modals are addressed by name so any surface can open one without prop-drilling. */
-export type ModalKind = "watchlists" | "trade";
+export type ModalKind = "watchlists" | "trade" | "shortcuts";
 
 interface UIState {
   paletteOpen: boolean;

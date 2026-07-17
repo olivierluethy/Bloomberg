@@ -25,10 +25,10 @@ export function CommandPalette() {
   const open = useUIStore((s) => s.paletteOpen);
   const seq = useUIStore((s) => s.paletteSeq);
   const closePalette = useUIStore((s) => s.closePalette);
-  const togglePalette = useUIStore((s) => s.togglePalette);
   const hydrated = useWatchlistHydration();
 
-  useGlobalShortcut(togglePalette);
+  // ⌘K is bound centrally (see shell/KeyboardShortcuts) — global keys live in
+  // one registry so the help screen can't promise a key nothing implements.
 
   // Body state (query, cursor) lives one level down and is keyed by the open
   // counter, so every ⌘K starts from a clean prompt — including a reopen that
@@ -272,16 +272,3 @@ function Hint({ keys, label }: { keys: string; label: string }) {
   );
 }
 
-/** ⌘K / Ctrl+K from anywhere, including while an input has focus. */
-function useGlobalShortcut(toggle: () => void) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key.toLowerCase() === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        toggle();
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [toggle]);
-}

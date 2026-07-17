@@ -5,6 +5,8 @@ import { CommandBar } from "@/components/shell/CommandBar";
 import { LeftNav } from "@/components/shell/LeftNav";
 import { StatusBar } from "@/components/shell/StatusBar";
 import { CommandPalette } from "@/components/search/CommandPalette";
+import { KeyboardShortcuts } from "@/components/shell/KeyboardShortcuts";
+import { ShortcutsHelp } from "@/components/shell/ShortcutsHelp";
 import { WatchlistManager } from "@/components/watchlists/WatchlistManager";
 import { AssetWorkspace } from "@/components/workspace/AssetWorkspace";
 import { EASE_OUT } from "@/lib/motion";
@@ -51,9 +53,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Overlays live at the shell level: ⌘K works from any module, and the
           workspace and watchlist editor open over whatever module you're in. */}
+      <KeyboardShortcuts />
       <CommandPalette />
       <WatchlistManager />
       <AssetWorkspace />
+      <ShortcutsHelp />
     </div>
   );
 }
