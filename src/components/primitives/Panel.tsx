@@ -37,7 +37,16 @@ export function Panel({
         </div>
         {actions ? <div className="flex shrink-0 items-center gap-1">{actions}</div> : null}
       </header>
-      <div className={cn("min-h-0 flex-1", scroll && "overflow-auto", bodyClassName)}>
+      {/*
+        A scrolling body is focusable so it can be scrolled from the keyboard.
+        Panels whose rows are all buttons or links are reachable anyway, but the
+        news feed's mock items have no URL, so nothing inside them takes focus —
+        without this the content is simply unreachable without a mouse.
+      */}
+      <div
+        className={cn("min-h-0 flex-1", scroll && "overflow-auto", bodyClassName)}
+        {...(scroll ? { tabIndex: 0, role: "region", "aria-label": title } : {})}
+      >
         {children}
       </div>
     </section>
