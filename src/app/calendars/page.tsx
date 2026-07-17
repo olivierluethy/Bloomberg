@@ -1,5 +1,5 @@
-import { PlaceholderModule } from "@/components/modules/PlaceholderModule";
+import { CalendarsModule } from "@/components/modules/CalendarsModule";
 
 export default function Page() {
-  return <PlaceholderModule moduleId="calendars" />;
+  return <CalendarsModule />;
 }
