@@ -83,11 +83,29 @@ export function assetClassLabel(cls: AssetClass): string {
 export const MAGNITUDE_HUE = "#3987e5";
 
 /**
- * Grid and axis ink, taken from the design tokens rather than copied as hexes —
- * SVG resolves `var()` fine, and the copies had already drifted: chart ticks
- * kept the old #55585f after the text ramp was raised for contrast, so the
- * labels stayed at 2.5:1 while the rest of the app was fixed.
+ * Chart ink, taken from the design tokens rather than copied as hexes — SVG
+ * resolves `var()` fine, and the copies had already drifted: chart ticks kept
+ * the old #55585f after the text ramp was raised for contrast, so the labels
+ * stayed at 2.5:1 while the rest of the app was fixed.
+ *
+ * Both AXIS_INK and LABEL_INK are TEXT inks and are both amber — the terminal's
+ * default. Despite the name, AXIS_INK has never coloured an axis *line*: every
+ * call site uses it as a tick label `fill` and reaches for GRID_INK for the rule
+ * itself. Pointing it at the divider grey on the theory that "axis" meant the
+ * line made every Recharts tick label the same colour as the hairline — the
+ * exact drift this comment block exists to warn about, one rename later.
  */
-export const AXIS_INK = "var(--color-fg-faint)";
-export const LABEL_INK = "var(--color-fg-dim)";
+export const AXIS_INK = "var(--color-amber)";
+export const LABEL_INK = "var(--color-amber)";
 export const GRID_INK = "var(--color-line)";
+
+/**
+ * Ink for a single-series line/area chart (the macro series, the yield curve).
+ *
+ * Amber, because a chart line carrying one series has no identity to encode —
+ * it's the terminal's default ink doing its default job, and the reference draws
+ * exactly this. Distinct from MAGNITUDE_HUE below, which fills *bars* whose
+ * length already carries the value; keeping them separate means retinting the
+ * lines can't silently retint the bars.
+ */
+export const SERIES_INK = "var(--color-amber)";

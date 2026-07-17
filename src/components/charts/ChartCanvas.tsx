@@ -30,19 +30,59 @@ import type { CrosshairInfo, IndicatorConfig } from "@/components/charts/types";
  * Not used directly by features — always via <PriceChart/>.
  */
 
-const COLORS = {
-  up: "#26d07c",
-  down: "#ff4d5e",
-  sma: "#ff9e1b",
-  ema: "#38bdf8",
-  band: "#55585f",
-  rsi: "#c084fc",
-  macd: "#38bdf8",
-  signal: "#ff9e1b",
-  grid: "rgba(36,38,43,0.55)",
-  text: "#8a8d93",
-  axis: "#24262b",
-};
+/**
+ * lightweight-charts paints to a canvas, so it needs concrete colours — it can't
+ * resolve `var(--color-amber)` the way an SVG chart can. These are therefore
+ * READ from the design tokens at mount rather than copied as hex literals.
+ *
+ * That indirection is the point. The previous version hardcoded eleven hexes
+ * here and they had already drifted from the theme: the axis ink kept an old
+ * grey after the text ramp was raised, leaving chart labels failing contrast
+ * while the rest of the app was fixed. A copied token is a token that will drift.
+ *
+ * Safe to call at module scope only inside the effect — this component is
+ * `ssr: false`, so `document` exists by the time `colors()` runs.
+ */
+function token(name: string, fallback: string): string {
+  if (typeof document === "undefined") return fallback;
+  const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return v || fallback;
+}
+
+/**
+ * Fade a token colour to `alpha` for the volume/MACD histograms, which sit
+ * behind the price series and would otherwise drown it.
+ *
+ * Parses the 6-digit hex the tokens are authored in; anything else (a named
+ * colour, an already-rgba value) is passed through opaque rather than mangled,
+ * since a wrong-but-visible bar beats an invisible one.
+ */
+function tint(hex: string, alpha: number): string {
+  const m = /^#([0-9a-f]{6})$/i.exec(hex);
+  if (!m) return hex;
+  const n = parseInt(m[1]!, 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
+}
+
+function colors() {
+  return {
+    up: token("--color-up", "#00c805"),
+    down: token("--color-down", "#ff433d"),
+    /* Chart ink is amber, per the terminal's grammar. */
+    sma: token("--color-amber", "#fa8b1e"),
+    ema: token("--color-blue", "#0068ff"),
+    band: token("--color-flat", "#7a7a7a"),
+    rsi: token("--color-amber2", "#ffb700"),
+    macd: token("--color-blue", "#0068ff"),
+    signal: token("--color-amber", "#fa8b1e"),
+    grid: token("--color-line", "#2a2a2a"),
+    /* Axis LABELS are amber; the axis lines and grid are the hairline grey. */
+    text: token("--color-amber", "#fa8b1e"),
+    axis: token("--color-line", "#2a2a2a"),
+    /* The dashed last-price marker and its bright amber2 tag. */
+    lastPrice: token("--color-flat", "#7a7a7a"),
+  };
+}
 
 function sanitize(candles: Candle[]): Candle[] {
   const seen = new Set<number>();
@@ -79,21 +119,22 @@ export default function ChartCanvas({
     if (!container) return;
 
     const data = sanitize(candles);
+    const COLORS = colors();
     const chart: IChartApi = createChart(container, {
       autoSize: true,
       layout: {
         background: { type: ColorType.Solid, color: "transparent" },
         textColor: COLORS.text,
-        fontFamily: "var(--font-jetbrains), monospace",
+        fontFamily: "var(--font-mono), monospace",
         fontSize: 10,
-        panes: { separatorColor: COLORS.axis, separatorHoverColor: "#34373d" },
+        panes: { separatorColor: COLORS.axis, separatorHoverColor: COLORS.axis },
         attributionLogo: false,
       },
       grid: { vertLines: { color: COLORS.grid }, horzLines: { color: COLORS.grid } },
       crosshair: {
         mode: CrosshairMode.Normal,
-        vertLine: { color: "#55585f", width: 1, style: LineStyle.Dashed, labelBackgroundColor: "#ff9e1b" },
-        horzLine: { color: "#55585f", width: 1, style: LineStyle.Dashed, labelBackgroundColor: "#ff9e1b" },
+        vertLine: { color: COLORS.band, width: 1, style: LineStyle.Dashed, labelBackgroundColor: COLORS.sma },
+        horzLine: { color: COLORS.band, width: 1, style: LineStyle.Dashed, labelBackgroundColor: COLORS.sma },
       },
       rightPriceScale: { borderColor: COLORS.axis },
       timeScale: { borderColor: COLORS.axis, timeVisible: true, secondsVisible: false },
@@ -108,7 +149,13 @@ export default function ChartCanvas({
       wickUpColor: COLORS.up,
       wickDownColor: COLORS.down,
       borderVisible: false,
-      priceLineVisible: false,
+      // The dashed last-price marker running to the axis, with a bright amber2
+      // tag — the reference's most recognisable chart detail.
+      priceLineVisible: true,
+      priceLineStyle: LineStyle.Dashed,
+      priceLineWidth: 1,
+      priceLineColor: COLORS.lastPrice,
+      lastValueVisible: true,
     });
     candleSeries.setData(
       data.map<CandlestickData<Time>>((c) => ({
@@ -132,7 +179,7 @@ export default function ChartCanvas({
         data.map((c) => ({
           time: c.time as UTCTimestamp,
           value: c.volume,
-          color: c.close >= c.open ? "rgba(38,208,124,0.35)" : "rgba(255,77,94,0.35)",
+          color: c.close >= c.open ? tint(COLORS.up, 0.35) : tint(COLORS.down, 0.35),
         })),
       );
     }
@@ -169,8 +216,8 @@ export default function ChartCanvas({
       const rsiPane = paneIndex++;
       const rsiSeries = chart.addSeries(LineSeries, { color: COLORS.rsi, lineWidth: 1, priceLineVisible: false }, rsiPane);
       rsiSeries.setData(rsiData);
-      rsiSeries.createPriceLine({ price: 70, color: "#3a3d44", lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: "70" });
-      rsiSeries.createPriceLine({ price: 30, color: "#3a3d44", lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: "30" });
+      rsiSeries.createPriceLine({ price: 70, color: COLORS.grid, lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: "70" });
+      rsiSeries.createPriceLine({ price: 30, color: COLORS.grid, lineWidth: 1, lineStyle: LineStyle.Dashed, axisLabelVisible: true, title: "30" });
     }
     const macdParts = config.macd ? macd(closes) : null;
     if (macdParts && toLine(macdParts.macd, data).length > 0) {
@@ -184,7 +231,7 @@ export default function ChartCanvas({
       histSeries.setData(
         data.flatMap((c, i) =>
           m.hist[i] != null
-            ? [{ time: c.time as UTCTimestamp, value: m.hist[i] as number, color: (m.hist[i] as number) >= 0 ? "rgba(38,208,124,0.5)" : "rgba(255,77,94,0.5)" }]
+            ? [{ time: c.time as UTCTimestamp, value: m.hist[i] as number, color: (m.hist[i] as number) >= 0 ? tint(COLORS.up, 0.5) : tint(COLORS.down, 0.5) }]
             : [],
         ),
       );

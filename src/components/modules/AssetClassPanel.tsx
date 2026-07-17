@@ -16,19 +16,20 @@ export function AssetClassPanel({ moduleId }: { moduleId: string }) {
   const universe = UNIVERSES[moduleId];
 
   if (!universe) {
-    return <div className="p-3 text-sm text-down">No universe configured for “{moduleId}”.</div>;
+    return <div className="p-1 text-sm text-down">No universe configured for “{moduleId}”.</div>;
   }
 
   return (
-    <div className="flex h-full flex-col p-3">
-      <div className="mb-3 flex items-baseline gap-3">
+    <div className="flex h-full flex-col p-1">
+      <div className="mb-1 flex items-baseline gap-1.5">
         <span className="font-mono text-2xs font-bold tracking-wide text-amber">{mod?.code ?? "—"}</span>
-        <h1 className="text-base font-semibold text-fg">{mod?.label ?? moduleId}</h1>
-        <span className="text-sm text-fg-faint">{mod?.blurb}</span>
+        <h1 className="text-xs font-bold uppercase text-amber2">{mod?.label ?? moduleId}</h1>
+        <span className="text-2xs text-fg-dim">{mod?.blurb}</span>
         <Breadth symbols={universe.symbols} />
       </div>
 
       <Panel
+        tag={mod?.code ?? "1"}
         title={`${mod?.label ?? moduleId} — Screen`}
         eyebrow="Live · Sortable"
         className="min-h-0 flex-1"
@@ -52,7 +53,7 @@ function Breadth({ symbols }: { symbols: string[] }) {
   const avg = quotes.reduce((s, q) => s + q!.changePercent, 0) / quotes.length;
 
   return (
-    <div className="ml-auto flex items-center gap-3 font-mono text-xs tabular-nums">
+    <div className="ml-auto flex items-center gap-1.5 font-mono text-xs tabular-nums">
       <span className="text-up">▲ {advancers}</span>
       <span className="text-down">▼ {decliners}</span>
       <span className={avg >= 0 ? "text-up" : "text-down"}>

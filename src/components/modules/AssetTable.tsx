@@ -90,14 +90,14 @@ export function AssetTable({
     );
 
   return (
-    <table className="w-full border-collapse text-sm">
+    <table className="w-full border-collapse text-xs">
       <thead className="sticky top-0 z-10 bg-panel">
-        <tr className="border-b border-line text-fg-faint">
+        <tr className="border-b border-line text-amber2">
           <Th label="Symbol" col="symbol" sort={sort} onSort={toggleSort} align="left" />
           <Th label="Last" col="price" sort={sort} onSort={toggleSort} align="right" />
           <Th label="Chg" col="change" sort={sort} onSort={toggleSort} align="right" />
           <Th label="Chg%" col="changePercent" sort={sort} onSort={toggleSort} align="right" />
-          <th className="px-3 py-1.5 text-right font-normal">
+          <th className="px-1 py-0.5 text-right font-normal">
             <span className="eyebrow">Trend</span>
           </th>
           {showVolume && <Th label="Volume" col="volume" sort={sort} onSort={toggleSort} align="right" />}
@@ -154,14 +154,14 @@ function Th({
   const active = sort.key === col;
   return (
     <th
-      className={cn("px-3 py-1.5 font-normal", align === "right" ? "text-right" : "text-left")}
+      className={cn("px-1 py-0.5 font-normal", align === "right" ? "text-right" : "text-left")}
       aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
     >
       <button
         type="button"
         onClick={() => onSort(col)}
         className={cn(
-          "eyebrow inline-flex items-center gap-1 transition-colors hover:text-fg-dim",
+          "eyebrow inline-flex items-center gap-1 transition-colors hover:text-amber",
           active && "text-amber",
         )}
       >
@@ -193,13 +193,13 @@ function QuoteRow({
   const digits = priceDigits(row.symbol, q.price);
   return (
     <tr className="group border-b border-line last:border-0 hover:bg-elevated">
-      <td className="px-3 py-1.5">
+      <td className="px-1 py-0.5">
         <div className="flex items-center gap-2">
           {showPin && <PinButton symbol={row.symbol} pinned={pinned} onToggle={onTogglePin} />}
           <button
             type="button"
             onClick={() => openWorkspace(row.symbol)}
-            className="font-mono text-sm font-medium text-fg transition-colors hover:text-amber"
+            className="whitespace-nowrap font-bold text-amber transition-colors hover:text-amber2"
             title={`Open ${row.symbol} workspace`}
           >
             {row.symbol}
@@ -207,22 +207,22 @@ function QuoteRow({
           <SourceTag source={row.source} provider={row.provider} className="opacity-0 transition-opacity group-hover:opacity-100" />
         </div>
       </td>
-      <td className="py-1.5 text-right">
+      <td className="py-0.5 text-right">
         <DataCell value={q.price} display={formatPrice(q.price, digits)} color="none" className="text-fg" />
       </td>
-      <td className="py-1.5 text-right">
+      <td className="py-0.5 text-right">
         <DataCell value={q.change} display={formatSigned(q.change, digits)} color={dir} />
       </td>
-      <td className="py-1.5 text-right">
+      <td className="py-0.5 text-right">
         <DataCell value={q.changePercent} display={formatPercent(q.changePercent)} color={dir} />
       </td>
-      <td className="py-1.5 pl-3 pr-3 text-right">
+      <td className="py-0.5 px-1 text-right">
         <div className="flex justify-end">
           <RowSparkline symbol={row.symbol} dir={dir} />
         </div>
       </td>
       {showVolume && (
-        <td className="px-3 py-1.5 text-right font-mono tabular-nums text-fg-dim">
+        <td className="px-1 py-0.5 text-right font-mono tabular-nums text-fg-dim">
           {q.volume ? formatCompact(q.volume) : "—"}
         </td>
       )}
@@ -243,7 +243,7 @@ function PinButton({ symbol, pinned, onToggle }: { symbol: string; pinned: boole
       aria-label={pinned ? `Unpin ${symbol} from watchlist` : `Pin ${symbol} to watchlist`}
       title={pinned ? "Unpin from watchlist" : "Pin to watchlist"}
       className={cn(
-        "font-mono text-sm leading-none transition-all",
+        "text-xs leading-none transition-all",
         pinned
           ? "text-amber"
           : "text-fg-faint opacity-0 hover:text-fg-dim focus-visible:opacity-100 group-hover:opacity-100",
@@ -257,18 +257,18 @@ function PinButton({ symbol, pinned, onToggle }: { symbol: string; pinned: boole
 function SkeletonRow({ symbol, showVolume, showPin }: { symbol: string; showVolume: boolean; showPin: boolean }) {
   return (
     <tr className="border-b border-line last:border-0">
-      <td className="px-3 py-1.5">
+      <td className="px-1 py-0.5">
         <div className="flex items-center gap-2">
           {/* Reserve the star's width so rows don't shift as quotes land. */}
           {showPin && <span className="w-3.5" aria-hidden />}
-          <span className="font-mono text-sm text-fg-faint">{symbol}</span>
+          <span className="whitespace-nowrap text-xs text-fg-dim">{symbol}</span>
         </div>
       </td>
-      <td className="py-1.5"><Skeleton className="ml-auto h-3 w-14" /></td>
-      <td className="py-1.5"><Skeleton className="ml-auto h-3 w-12" /></td>
-      <td className="py-1.5"><Skeleton className="ml-auto h-3 w-12" /></td>
-      <td className="px-3 py-1.5"><Skeleton className="ml-auto h-4 w-16" /></td>
-      {showVolume && <td className="px-3 py-1.5"><Skeleton className="ml-auto h-3 w-12" /></td>}
+      <td className="py-0.5"><Skeleton className="ml-auto h-3 w-14" /></td>
+      <td className="py-0.5"><Skeleton className="ml-auto h-3 w-12" /></td>
+      <td className="py-0.5"><Skeleton className="ml-auto h-3 w-12" /></td>
+      <td className="px-1 py-0.5"><Skeleton className="ml-auto h-4 w-16" /></td>
+      {showVolume && <td className="px-1 py-0.5"><Skeleton className="ml-auto h-3 w-12" /></td>}
     </tr>
   );
 }

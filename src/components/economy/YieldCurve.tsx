@@ -3,7 +3,7 @@
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { SkeletonRows } from "@/components/primitives/Skeleton";
 import { SourceTag } from "@/components/primitives/SourceTag";
-import { AXIS_INK, GRID_INK, MAGNITUDE_HUE } from "@/config/viz";
+import { AXIS_INK, GRID_INK, SERIES_INK } from "@/config/viz";
 import { YIELD_CURVE } from "@/config/econ";
 import { useEconomicSeriesBatch } from "@/data/hooks";
 import { cn } from "@/lib/cn";
@@ -31,7 +31,7 @@ export function YieldCurve() {
     yield: results[i]?.data?.data.at(-1)?.value ?? 0,
   })).filter((d) => d.yield > 0);
 
-  if (data.length === 0) return <p className="p-3 text-sm text-fg-faint">No curve data.</p>;
+  if (data.length === 0) return <p className="p-1 text-sm text-fg-faint">No curve data.</p>;
 
   const two = data.find((d) => d.label === "2Y")?.yield;
   const ten = data.find((d) => d.label === "10Y")?.yield;
@@ -41,7 +41,7 @@ export function YieldCurve() {
   const pad = (Math.max(...yields) - Math.min(...yields)) * 0.25 || 0.2;
 
   return (
-    <div className="flex h-full flex-col p-3">
+    <div className="flex h-full flex-col p-1">
       <div className="mb-2 flex items-center justify-between gap-2">
         {spread !== undefined ? (
           <div className="flex items-baseline gap-2">
@@ -82,7 +82,7 @@ export function YieldCurve() {
                 const p = payload?.[0];
                 if (!p) return null;
                 return (
-                  <div className="border border-line-bright bg-elevated px-2 py-1 shadow-lg">
+                  <div className="border border-line bg-void px-1.5 py-0.5">
                     <p className="font-mono text-2xs text-fg-dim">{String(label)} treasury</p>
                     <p className="font-mono text-xs tabular-nums text-fg">{Number(p.value).toFixed(2)}%</p>
                   </div>
@@ -92,10 +92,10 @@ export function YieldCurve() {
             <Line
               type="monotone"
               dataKey="yield"
-              stroke={MAGNITUDE_HUE}
+              stroke={SERIES_INK}
               strokeWidth={2}
               isAnimationActive={false}
-              dot={{ r: 2.5, fill: MAGNITUDE_HUE, stroke: "none" }}
+              dot={{ r: 2.5, fill: SERIES_INK, stroke: "none" }}
               activeDot={{ r: 4 }}
             />
           </LineChart>

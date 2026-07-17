@@ -34,7 +34,7 @@ export function DetailTabs({ symbol }: { symbol: string }) {
             aria-selected={t === tab}
             onClick={() => setTab(t)}
             className={cn(
-              "border-b-2 px-3 py-1.5 text-sm transition-colors",
+              "border-b-2 px-1.5 py-0.5 text-sm transition-colors",
               t === tab
                 ? "border-amber text-fg"
                 : "border-transparent text-fg-dim hover:bg-elevated hover:text-fg",
@@ -58,12 +58,12 @@ function ProfileTab({ symbol }: { symbol: string }) {
   const { data, isPending } = useFundamentals(symbol);
   const f = data?.data;
 
-  if (isPending) return <SkeletonText lines={4} className="p-3" />;
+  if (isPending) return <SkeletonText lines={4} className="p-1" />;
   if (!f) return <Empty>No profile available for {symbol}.</Empty>;
 
   return (
-    <div className="flex flex-col gap-3 p-3">
-      <div className="flex items-start justify-between gap-3">
+    <div className="flex flex-col gap-1.5 p-1">
+      <div className="flex items-start justify-between gap-1.5">
         <div className="min-w-0">
           {/* The catalog knows the real name; the mock adapter can only invent
               one. Prefer the truth so this never contradicts the header. */}
@@ -87,8 +87,8 @@ function EstimatesTab({ symbol }: { symbol: string }) {
   if (!est) return <Empty>No estimates available for {symbol}.</Empty>;
 
   return (
-    <div className="flex flex-col gap-3 p-3">
-      <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-col gap-1.5 p-1">
+      <div className="flex flex-wrap items-center gap-1.5">
         <RatingBadge rating={est.rating} />
         <div className="flex items-baseline gap-2 font-mono text-xs tabular-nums">
           <span className="text-fg-faint">Target</span>
@@ -111,14 +111,14 @@ function EstimatesTab({ symbol }: { symbol: string }) {
         <tbody>
           {est.estimates.map((e) => (
             <tr key={e.period} className="border-b border-line last:border-0">
-              <td className="py-1.5 font-mono text-xs text-fg">{e.period}</td>
-              <td className="py-1.5 text-right font-mono text-xs tabular-nums text-fg-dim">
+              <td className="py-0.5 font-mono text-xs text-fg">{e.period}</td>
+              <td className="py-0.5 text-right font-mono text-xs tabular-nums text-fg-dim">
                 {formatCompact(e.revenueAvg)}
               </td>
-              <td className="py-1.5 text-right font-mono text-xs tabular-nums text-fg-dim">
+              <td className="py-0.5 text-right font-mono text-xs tabular-nums text-fg-dim">
                 {e.epsAvg.toFixed(2)}
               </td>
-              <td className="py-1.5 text-right font-mono text-xs tabular-nums text-fg-faint">
+              <td className="py-0.5 text-right font-mono text-xs tabular-nums text-fg-faint">
                 {e.numAnalysts}
               </td>
             </tr>
@@ -143,8 +143,8 @@ function OwnershipTab({ symbol }: { symbol: string }) {
   ];
 
   return (
-    <div className="flex flex-col gap-3 p-3">
-      <div className="flex items-center justify-between gap-3">
+    <div className="flex flex-col gap-1.5 p-1">
+      <div className="flex items-center justify-between gap-1.5">
         <span className="eyebrow">Holder Breakdown</span>
         <SourceTag source={data?.source} provider={data?.provider} />
       </div>
@@ -176,11 +176,11 @@ function OwnershipTab({ symbol }: { symbol: string }) {
         <tbody>
           {own.topHolders.map((h) => (
             <tr key={h.name} className="border-b border-line last:border-0">
-              <td className="truncate py-1.5 text-xs text-fg">{h.name}</td>
-              <td className="py-1.5 text-right font-mono text-xs tabular-nums text-fg-dim">
+              <td className="truncate py-0.5 text-xs text-fg">{h.name}</td>
+              <td className="py-0.5 text-right font-mono text-xs tabular-nums text-fg-dim">
                 {formatCompact(h.shares)}
               </td>
-              <td className="py-1.5 text-right font-mono text-xs tabular-nums text-fg-dim">
+              <td className="py-0.5 text-right font-mono text-xs tabular-nums text-fg-dim">
                 {h.pctOfShares.toFixed(2)}%
               </td>
             </tr>
@@ -221,5 +221,5 @@ function Th({ children, align = "left" }: { children: React.ReactNode; align?: "
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="p-3 text-sm text-fg-faint">{children}</p>;
+  return <p className="p-1 text-sm text-fg-faint">{children}</p>;
 }

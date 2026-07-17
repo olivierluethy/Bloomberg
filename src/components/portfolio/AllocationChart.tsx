@@ -31,7 +31,7 @@ export function AllocationChart({ valued, pending }: { valued: ValuedPosition[];
 
   if (pending) return <Skeleton className="mx-3 my-4 h-8" />;
   if (groups.length === 0) {
-    return <p className="p-3 text-sm text-fg-faint">Nothing allocated yet.</p>;
+    return <p className="p-1 text-sm text-fg-faint">Nothing allocated yet.</p>;
   }
 
   // Recharts stacks one row: a single datum with a key per class. The row needs a
@@ -40,7 +40,7 @@ export function AllocationChart({ valued, pending }: { valued: ValuedPosition[];
   const row = { name: "portfolio", ...Object.fromEntries(groups.map((g) => [g.key, g.weight])) };
 
   return (
-    <div className="flex flex-col gap-3 p-3">
+    <div className="flex flex-col gap-1.5 p-1">
       <div className="h-9 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={[row]} layout="vertical" margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
@@ -82,7 +82,7 @@ export function AllocationChart({ valued, pending }: { valued: ValuedPosition[];
 
 function ChartTooltip({ label, weight, value }: { label: string; weight: number; value: number }) {
   return (
-    <div className="border border-line-bright bg-elevated px-2 py-1 shadow-lg">
+    <div className="border border-line bg-void px-1.5 py-0.5">
       <p className="font-mono text-2xs text-fg-dim">{label}</p>
       <p className="font-mono text-xs tabular-nums text-fg">
         {weight.toFixed(1)}% · {formatPrice(value, 0)}

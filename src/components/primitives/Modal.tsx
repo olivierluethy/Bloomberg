@@ -97,7 +97,7 @@ export function Modal({
       {open && (
         <motion.div
           className={cn(
-            "fixed inset-0 z-50 flex justify-center bg-void/70 p-4 backdrop-blur-[2px]",
+            "fixed inset-0 z-50 flex justify-center bg-void/80 p-4",
             align === "top" ? "items-start pt-[12vh]" : "items-center",
           )}
           initial={reduce ? undefined : { opacity: 0 }}
@@ -123,7 +123,7 @@ export function Modal({
             exit={reduce ? undefined : { opacity: 0, y: -6, scale: 0.995 }}
             transition={{ duration: 0.16, ease: EASE_OUT }}
             className={cn(
-              "flex max-h-full min-h-0 w-full flex-col border border-line-bright bg-panel shadow-2xl shadow-void/60 outline-none",
+              "flex max-h-full min-h-0 w-full flex-col border border-line bg-panel outline-none",
               className,
             )}
           >

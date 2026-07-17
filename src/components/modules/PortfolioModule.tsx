@@ -32,16 +32,16 @@ export function PortfolioModule() {
   const pending = !hydrated || isPending;
 
   return (
-    <div className="flex h-full flex-col gap-3 p-3">
-      <div className="flex shrink-0 items-baseline gap-3">
+    <div className="flex h-full flex-col gap-px p-px">
+      <div className="flex shrink-0 items-baseline gap-1.5">
         <span className="font-mono text-2xs font-bold tracking-wide text-amber">{mod?.code ?? "PORT"}</span>
-        <h1 className="text-base font-semibold text-fg">{mod?.label ?? "Portfolio"}</h1>
+        <h1 className="text-xs font-bold uppercase text-amber2">{mod?.label ?? "Portfolio"}</h1>
         <span className="hidden text-sm text-fg-faint sm:inline">Virtual holdings · FIFO cost basis</span>
         <div className="ml-auto flex items-center gap-1">
           <button
             type="button"
             onClick={() => openModal("trade")}
-            className="border border-amber/60 px-2 py-1 font-mono text-2xs font-semibold text-amber transition-colors hover:bg-amber/10"
+            className="border border-amber/60 px-1.5 py-1 font-mono text-2xs font-semibold text-amber transition-colors hover:bg-amber/10"
           >
             TRADE
           </button>
@@ -49,7 +49,7 @@ export function PortfolioModule() {
             type="button"
             onClick={reset}
             title="Restore the sample ledger"
-            className="border border-line px-2 py-1 font-mono text-2xs text-fg-dim transition-colors hover:border-line-bright hover:text-fg"
+            className="border border-line px-1.5 py-1 font-mono text-2xs text-fg-dim transition-colors hover:border-line-bright hover:text-fg"
           >
             RESET
           </button>
@@ -62,10 +62,11 @@ export function PortfolioModule() {
         variants={reduce ? undefined : staggerContainer}
         initial={reduce ? undefined : "hidden"}
         animate={reduce ? undefined : "visible"}
-        className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-[1fr_340px]"
+        className="grid min-h-0 flex-1 grid-cols-1 gap-px lg:grid-cols-[1fr_340px]"
       >
         <motion.div variants={reduce ? undefined : panelVariants} className="flex min-h-0 flex-col">
           <Panel
+            tag="1"
             title="Holdings"
             eyebrow="Positions"
             className="min-h-0 flex-1"
@@ -76,11 +77,11 @@ export function PortfolioModule() {
           </Panel>
         </motion.div>
 
-        <motion.div variants={reduce ? undefined : panelVariants} className="flex min-h-0 flex-col gap-3">
-          <Panel title="Allocation" eyebrow="By asset class" className="shrink-0">
+        <motion.div variants={reduce ? undefined : panelVariants} className="flex min-h-0 flex-col gap-px">
+          <Panel tag="2" title="Allocation" eyebrow="By asset class" className="shrink-0">
             <AllocationChart valued={valued} pending={pending} />
           </Panel>
-          <Panel title="Exposure" eyebrow="Equity sector · other classes grouped" className="min-h-0 flex-1" scroll>
+          <Panel tag="3" title="Exposure" eyebrow="Equity sector · other classes grouped" className="min-h-0 flex-1" scroll>
             {pending ? null : <ExposureChart valued={valued} />}
           </Panel>
         </motion.div>

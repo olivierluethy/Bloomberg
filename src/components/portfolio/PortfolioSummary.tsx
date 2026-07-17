@@ -21,7 +21,7 @@ export function PortfolioSummary({ totals, pending }: { totals: PortfolioTotals;
           value={totals.marketValue}
           display={formatPrice(totals.marketValue)}
           color="none"
-          className="px-0 text-lg font-semibold text-fg"
+          className="px-0 text-sm font-bold text-fg"
         />
       </Tile>
 
@@ -65,7 +65,7 @@ function Tile({
   pending: boolean;
 }) {
   return (
-    <div className={cn("flex flex-col gap-0.5 border border-line bg-panel px-3 py-2", hero && "border-line-bright")}>
+    <div className={cn("flex flex-col gap-0.5 border border-line bg-panel px-1.5 py-0.5", hero && "border-line-bright")}>
       <span className="eyebrow">{label}</span>
       {pending ? <Skeleton className="h-6 w-24" /> : children}
       {sub ? (

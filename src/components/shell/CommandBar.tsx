@@ -1,48 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUIStore } from "@/store/ui";
+import { TickerTape } from "@/components/shell/TickerTape";
 
 /**
- * The command bar is the spine of the terminal: the prompt opens the ⌘K
- * palette, which is the primary way you drive the app.
+ * The top strip: brand, scrolling ticker tape, clock — one 24px line.
+ *
+ * The ⌘K affordance used to live here as a search input. It now sits at the
+ * bottom of the shell as a real command line (see shell/CommandLine), which is
+ * where the terminal grammar puts it and what frees this row for the tape.
  */
 export function CommandBar() {
   return (
-    <header className="flex h-11 shrink-0 items-center gap-3 border-b border-line bg-elevated px-3">
-      <Brand />
-      <CommandTrigger />
+    <header className="flex h-6 shrink-0 items-center gap-1.5 border-b border-line bg-void px-1.5">
+      <span className="shrink-0 text-xs font-bold tracking-widest text-amber2">TERM</span>
+      <TickerTape />
       <Clock />
     </header>
-  );
-}
-
-function Brand() {
-  return (
-    <div className="flex shrink-0 items-center gap-2">
-      <span className="text-amber" aria-hidden>◆</span>
-      <span className="font-mono text-sm font-bold tracking-widest text-fg">TERM</span>
-    </div>
-  );
-}
-
-function CommandTrigger() {
-  const openPalette = useUIStore((s) => s.openPalette);
-  return (
-    <button
-      type="button"
-      onClick={openPalette}
-      className="group flex h-7 flex-1 items-center gap-2 border border-line bg-void px-2 text-left transition-colors hover:border-line-bright"
-      aria-label="Open command palette"
-      aria-keyshortcuts="Meta+K Control+K"
-    >
-      <span className="font-mono text-sm text-amber" aria-hidden>{">"}</span>
-      <span className="font-mono text-sm text-fg-faint">Search markets, run a command…</span>
-      <span className="caret-blink font-mono text-sm text-amber" aria-hidden>▌</span>
-      <kbd className="ml-auto hidden rounded-none border border-line px-1.5 py-0.5 font-mono text-2xs text-fg-dim sm:inline">
-        ⌘K
-      </kbd>
-    </button>
   );
 }
 
@@ -64,9 +38,9 @@ function Clock() {
   }, []);
 
   return (
-    <div className="hidden shrink-0 items-baseline gap-1.5 font-mono md:flex">
-      <span className="text-sm tabular-nums text-fg">{now ?? "--:--:--"}</span>
-      <span className="text-2xs text-fg-faint">UTC</span>
+    <div className="hidden shrink-0 items-baseline gap-1 text-xs md:flex">
+      <span className="tabular-nums text-fg">{now ?? "--:--:--"}</span>
+      <span className="text-2xs text-fg-dim">UTC</span>
     </div>
   );
 }

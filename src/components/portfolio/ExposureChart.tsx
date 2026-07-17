@@ -54,10 +54,10 @@ export function ExposureChart({ valued }: { valued: ValuedPosition[] }) {
     .sort((a, b) => b.value - a.value);
 
   if (isPending) return <SkeletonRows rows={4} />;
-  if (data.length === 0) return <p className="p-3 text-sm text-fg-faint">No exposure to show.</p>;
+  if (data.length === 0) return <p className="p-1 text-sm text-fg-faint">No exposure to show.</p>;
 
   return (
-    <div className="flex flex-col p-3">
+    <div className="flex flex-col p-1">
       <div className="mb-1 flex justify-end">
         <SourceTag source={source?.source} provider={source?.provider} />
       </div>
@@ -82,7 +82,7 @@ export function ExposureChart({ valued }: { valued: ValuedPosition[] }) {
                 const d = payload?.[0]?.payload as (typeof data)[number] | undefined;
                 if (!d) return null;
                 return (
-                  <div className="border border-line-bright bg-elevated px-2 py-1 shadow-lg">
+                  <div className="border border-line bg-void px-1.5 py-0.5">
                     <p className="font-mono text-2xs text-fg-dim">{d.sector}</p>
                     <p className="font-mono text-xs tabular-nums text-fg">
                       {d.weight.toFixed(1)}% · {formatPrice(d.value, 0)}

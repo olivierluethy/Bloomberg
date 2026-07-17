@@ -73,7 +73,7 @@ function TradeForm({ onClose }: { onClose: () => void }) {
 
   return (
     <form onSubmit={submit}>
-      <header className="flex items-center justify-between border-b border-line px-3 py-2">
+      <header className="flex items-center justify-between border-b border-line px-1.5 py-0.5">
         <div className="flex flex-col">
           <span className="eyebrow">Portfolio</span>
           <h2 id="trade-title" className="text-sm font-semibold text-fg">
@@ -102,12 +102,12 @@ function TradeForm({ onClose }: { onClose: () => void }) {
         </div>
       </header>
 
-      <div className="flex flex-col gap-3 p-3">
+      <div className="flex flex-col gap-1.5 p-1">
         <Field label="Symbol">
           <select
             value={symbol}
             onChange={(e) => setSymbol(e.target.value)}
-            className="w-full border border-line bg-void px-2 py-1 font-mono text-sm text-fg outline-none focus:border-line-bright"
+            className="w-full border border-line bg-void px-1.5 py-1 font-mono text-sm text-fg outline-none focus:border-line-bright"
           >
             {SYMBOL_CATALOG.map((s) => (
               <option key={s.symbol} value={s.symbol}>
@@ -132,7 +132,7 @@ function TradeForm({ onClose }: { onClose: () => void }) {
           </Field>
         </div>
 
-        <div className="flex items-baseline justify-between border border-line bg-void px-2 py-1.5">
+        <div className="flex items-baseline justify-between border border-line bg-void px-1.5 py-0.5">
           <span className="eyebrow">Est. {side === "buy" ? "Cost" : "Proceeds"}</span>
           <span className="font-mono text-sm tabular-nums text-fg">
             {Number.isFinite(qty) && Number.isFinite(px) && qty > 0 && px > 0
@@ -144,7 +144,7 @@ function TradeForm({ onClose }: { onClose: () => void }) {
         {problem ? <p className="font-mono text-2xs text-down">{problem}</p> : null}
       </div>
 
-      <footer className="flex justify-end gap-2 border-t border-line px-3 py-2">
+      <footer className="flex justify-end gap-2 border-t border-line px-1.5 py-0.5">
         <button
           type="button"
           onClick={onClose}
@@ -195,7 +195,7 @@ function Input({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       inputMode={inputMode}
-      className="w-full border border-line bg-void px-2 py-1 font-mono text-sm text-fg outline-none focus:border-line-bright placeholder:text-fg-faint"
+      className="w-full border border-line bg-void px-1.5 py-1 font-mono text-sm text-fg outline-none focus:border-line-bright placeholder:text-fg-faint"
     />
   );
 }

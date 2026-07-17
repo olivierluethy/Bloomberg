@@ -41,17 +41,17 @@ export function NewsFeed({
   }
 
   return (
-    <div className="flex h-full flex-col p-3">
-      <div className="mb-3 flex items-baseline gap-3">
+    <div className="flex h-full flex-col p-1">
+      <div className="mb-1 flex items-baseline gap-1.5">
         <span className="font-mono text-2xs font-bold tracking-wide text-amber">N</span>
-        <h1 className="text-base font-semibold text-fg">News</h1>
-        <span className="text-sm text-fg-faint">Live financial headlines</span>
+        <h1 className="text-xs font-bold uppercase text-amber2">News</h1>
+        <span className="text-2xs text-fg-dim">Live financial headlines</span>
         <div className="ml-auto">
           <SourceTag source={data?.source} provider={data?.provider} />
         </div>
       </div>
 
-      <div className="mb-3 flex items-center gap-1">
+      <div className="mb-1 flex items-center gap-1">
         {CATEGORIES.map((c) => (
           <button
             key={c}
@@ -59,7 +59,7 @@ export function NewsFeed({
             onClick={() => setCategory(c)}
             aria-pressed={c === category}
             className={cn(
-              "px-2 py-1 text-xs font-medium transition-colors",
+              "px-1.5 py-1 text-xs font-medium transition-colors",
               c === category ? "bg-amber/15 text-amber" : "text-fg-dim hover:text-fg",
             )}
           >
@@ -68,7 +68,7 @@ export function NewsFeed({
         ))}
       </div>
 
-      <Panel title="Headlines" eyebrow="Feed" className="min-h-0 flex-1" scroll>
+      <Panel tag="N" title="Headlines" eyebrow="Feed" className="min-h-0 flex-1" scroll>
         <NewsList items={items} isPending={isPending} isError={isError} error={error as Error | null} />
       </Panel>
     </div>
@@ -90,10 +90,10 @@ function NewsList({
 }) {
   if (isPending) return <SkeletonRows rows={compact ? 5 : 10} />;
   if (isError) {
-    return <p className="p-3 font-mono text-sm text-down">Couldn&apos;t load news: {error?.message ?? "unknown error"}</p>;
+    return <p className="p-1 font-mono text-sm text-down">Couldn&apos;t load news: {error?.message ?? "unknown error"}</p>;
   }
   if (items.length === 0) {
-    return <p className="p-3 text-sm text-fg-faint">No headlines right now.</p>;
+    return <p className="p-1 text-sm text-fg-faint">No headlines right now.</p>;
   }
   return (
     <ul>
@@ -119,7 +119,7 @@ function NewsRow({ item, compact }: { item: NewsItem; compact: boolean }) {
           <span className="text-fg-dim">{item.source}</span>
           {item.category ? <span className="eyebrow border border-line px-1 py-px">{item.category}</span> : null}
           {item.tickers?.map((t) => (
-            <span key={t} className="font-mono text-cyan">
+            <span key={t} className="text-amber">
               {t}
             </span>
           ))}
@@ -128,7 +128,7 @@ function NewsRow({ item, compact }: { item: NewsItem; compact: boolean }) {
     </>
   );
 
-  const className = "group flex gap-3 border-b border-line px-3 py-2.5 last:border-0 hover:bg-elevated";
+  const className = "group flex gap-1.5 border-b border-line px-1.5 py-0.5 last:border-0 hover:bg-elevated";
   return (
     <li>
       {item.url ? (

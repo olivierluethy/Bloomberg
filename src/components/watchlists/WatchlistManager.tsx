@@ -55,7 +55,7 @@ function ManagerBody({ onClose }: { onClose: () => void }) {
 
   return (
     <>
-      <header className="flex items-center justify-between border-b border-line px-3 py-2">
+      <header className="flex items-center justify-between border-b border-line px-1.5 py-0.5">
         <div className="flex flex-col">
           <span className="eyebrow">Workspace</span>
           <h2 id="watchlists-title" className="text-sm font-semibold text-fg">
@@ -65,7 +65,7 @@ function ManagerBody({ onClose }: { onClose: () => void }) {
         <button
           type="button"
           onClick={onClose}
-          className="border border-line px-2 py-1 font-mono text-2xs text-fg-dim transition-colors hover:border-line-bright hover:text-fg"
+          className="border border-line px-1.5 py-1 font-mono text-2xs text-fg-dim transition-colors hover:border-line-bright hover:text-fg"
         >
           CLOSE
         </button>
@@ -73,7 +73,7 @@ function ManagerBody({ onClose }: { onClose: () => void }) {
 
       <div className="grid min-h-0 flex-1 grid-cols-1 sm:grid-cols-[240px_1fr]">
         <div className="flex min-h-0 flex-col border-b border-line sm:border-b-0 sm:border-r">
-          <div className="eyebrow px-3 py-2">Lists</div>
+          <div className="eyebrow px-1.5 py-0.5">Lists</div>
           <ul className="min-h-0 flex-1 overflow-y-auto">
             {lists.map((list, i) => (
               <ListRow
@@ -100,18 +100,18 @@ function ManagerBody({ onClose }: { onClose: () => void }) {
           <button
             type="button"
             onClick={() => setSelectedId(createList("New list"))}
-            className="border-t border-line px-3 py-2 text-left text-sm text-amber transition-colors hover:bg-elevated"
+            className="border-t border-line px-1.5 py-0.5 text-left text-sm text-amber transition-colors hover:bg-elevated"
           >
             + New list
           </button>
         </div>
 
         <div className="flex min-h-0 flex-col">
-          <div className="eyebrow px-3 py-2">
+          <div className="eyebrow px-1.5 py-0.5">
             {selected ? `${selected.name} — ${selected.symbols.length} symbols` : "Symbols"}
           </div>
           {!selected || selected.symbols.length === 0 ? (
-            <p className="px-3 py-8 text-center text-sm text-fg-faint">
+            <p className="px-1.5 py-3 text-center text-sm text-fg-faint">
               No symbols yet. Press <kbd className="border border-line px-1 font-mono text-2xs">⌘K</kbd> and pin
               one.
             </p>
@@ -144,7 +144,7 @@ function ManagerBody({ onClose }: { onClose: () => void }) {
                     setOverIndex(null);
                   }}
                   className={cn(
-                    "group flex cursor-grab items-center gap-2 border-b border-line px-3 py-1.5 last:border-0 hover:bg-elevated",
+                    "group flex cursor-grab items-center gap-2 border-b border-line px-1.5 py-0.5 last:border-0 hover:bg-elevated",
                     dragIndex === i && "opacity-40",
                     // The insertion point, drawn on the edge the row will land on.
                     overIndex === i && dragIndex !== null && dragIndex !== i &&
@@ -233,7 +233,7 @@ function ListRow({
         selected ? "border-amber bg-elevated" : "border-transparent hover:bg-elevated",
       )}
     >
-      <div className="flex items-center gap-1 px-2 py-1.5">
+      <div className="flex items-center gap-1 px-1.5 py-0.5">
         {editing ? (
           <input
             autoFocus
@@ -270,7 +270,7 @@ function ListRow({
       </div>
 
       {selected && !editing && (
-        <div className="flex items-center gap-1 px-2 pb-1.5">
+        <div className="flex items-center gap-1 px-1.5 pb-1.5">
           <TextButton onClick={() => setEditing(true)}>Rename</TextButton>
           {!active && <TextButton onClick={onMakeActive}>Set active</TextButton>}
           <IconButton label={`Move ${name} up`} disabled={!canMoveUp} onClick={onMoveUp}>

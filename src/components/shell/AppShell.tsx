@@ -2,6 +2,8 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { CommandBar } from "@/components/shell/CommandBar";
+import { CommandLine } from "@/components/shell/CommandLine";
+import { FunctionKeys } from "@/components/shell/FunctionKeys";
 import { LeftNav } from "@/components/shell/LeftNav";
 import { StatusBar } from "@/components/shell/StatusBar";
 import { CommandPalette } from "@/components/search/CommandPalette";
@@ -12,9 +14,10 @@ import { AssetWorkspace } from "@/components/workspace/AssetWorkspace";
 import { EASE_OUT } from "@/lib/motion";
 
 /**
- * The application frame: command bar on top, nav + main panel area in the
- * middle, status bar at the bottom. On first load the chrome boots in with a
- * short staggered rise; reduced-motion users get it instantly.
+ * The application frame: ticker strip on top, nav + main panel area in the
+ * middle, and the terminal's bottom stack — command line, status strip, function
+ * keys — pinned beneath it. On first load the chrome boots in with a short
+ * staggered rise; reduced-motion users get it instantly.
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const reduce = useReducedMotion();
@@ -28,8 +31,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           transition: { duration: 0.3, delay: 0.05 * order, ease: EASE_OUT },
         };
 
+  // `grid-cols-1` is load-bearing, not decoration: it resolves to
+  // minmax(0, 1fr), which clamps the single column to the viewport. Without it
+  // the implicit column is `auto` — sized to max-content — and the ticker tape's
+  // duplicated strip is ~2200px wide intrinsically, so every row in the shell
+  // (main included) inherited that width and the right-hand panels were pushed
+  // off-screen.
   return (
-    <div className="grid h-screen grid-rows-[auto_1fr_auto] overflow-hidden">
+    <div className="grid h-screen grid-cols-1 grid-rows-[auto_1fr_auto_auto_auto] overflow-hidden">
       <motion.div {...boot(0)}>
         <CommandBar />
       </motion.div>
@@ -47,8 +56,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </motion.main>
       </div>
 
+      {/* The bottom stack rises as one unit — three rows, one boot step. */}
+      <motion.div {...boot(2)}>
+        <CommandLine />
+      </motion.div>
       <motion.div {...boot(2)}>
         <StatusBar />
+      </motion.div>
+      <motion.div {...boot(2)}>
+        <FunctionKeys />
       </motion.div>
 
       {/* Overlays live at the shell level: ⌘K works from any module, and the

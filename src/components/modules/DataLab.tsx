@@ -20,23 +20,25 @@ export function DataLab() {
   const book = useOrderBook("BTC-USD"); // always simulated
 
   return (
-    <div className="flex h-full flex-col overflow-auto p-3">
-      <div className="mb-3 flex items-baseline gap-3">
+    <div className="flex h-full flex-col overflow-auto p-1">
+      <div className="mb-1 flex items-baseline gap-1.5">
         <span className="font-mono text-2xs font-bold tracking-wide text-amber">LAB</span>
-        <h1 className="text-base font-semibold text-fg">Data Layer Smoke Test</h1>
-        <span className="text-sm text-fg-faint">
+        <h1 className="text-xs font-bold uppercase text-amber2">Data Layer Smoke Test</h1>
+        <span className="text-2xs text-fg-dim">
           One interface, two sources — the panels below don&apos;t know which is which.
         </span>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-px lg:grid-cols-3">
         <QuoteCard
+          tag="1"
           title="Live Path"
           eyebrow="Crypto · CoinGecko"
           note="Real quote via the keyless public tier."
           query={btc}
         />
         <QuoteCard
+          tag="2"
           title="Fallback Path"
           eyebrow="Equity · Finnhub → Mock"
           note="No API key present, so the router degrades to a labeled mock."
@@ -44,11 +46,12 @@ export function DataLab() {
         />
 
         <Panel
+          tag="3"
           title="Order Book"
           eyebrow="Always Simulated"
           actions={<SourceTag source={book.data?.source} provider={book.data?.provider} />}
         >
-          <div className="p-3">
+          <div className="p-1">
             {book.isPending ? (
               <SkeletonText lines={6} />
             ) : book.data ? (
@@ -60,13 +63,13 @@ export function DataLab() {
         </Panel>
       </div>
 
-      <p className="mt-3 max-w-3xl text-sm text-fg-dim">
+      <p className="mt-1 max-w-3xl text-sm text-fg-dim">
         The <span className="text-fg">Live</span> and <span className="text-fg">Fallback</span>{" "}
-        panels call the exact same <code className="font-mono text-cyan">useQuote()</code> hook.
+        panels call the exact same <code className="text-amber">useQuote()</code> hook.
         Routing to a real adapter vs. the mock happens on the server, and the only visible
         difference is the provenance tag. Provide{" "}
-        <code className="font-mono text-cyan">FINNHUB_API_KEY</code> in{" "}
-        <code className="font-mono text-cyan">.env.local</code> and the equity panel flips to LIVE
+        <code className="text-amber">FINNHUB_API_KEY</code> in{" "}
+        <code className="text-amber">.env.local</code> and the equity panel flips to LIVE
         — no component changes.
       </p>
     </div>
@@ -74,11 +77,13 @@ export function DataLab() {
 }
 
 function QuoteCard({
+  tag,
   title,
   eyebrow,
   note,
   query,
 }: {
+  tag: string;
   title: string;
   eyebrow: string;
   note: string;
@@ -86,11 +91,12 @@ function QuoteCard({
 }) {
   return (
     <Panel
+      tag={tag}
       title={title}
       eyebrow={eyebrow}
       actions={<SourceTag source={query.data?.source} provider={query.data?.provider} />}
     >
-      <div className="p-3">
+      <div className="p-1">
         {query.isPending ? (
           <SkeletonText lines={4} />
         ) : query.data ? (
@@ -111,12 +117,12 @@ function QuoteView({ quote, note }: { quote: Quote; note: string }) {
         <span className="font-mono text-sm font-semibold text-fg">{quote.symbol}</span>
         <span className="text-2xs text-fg-faint">{quote.currency}</span>
       </div>
-      <div className="flex items-baseline gap-3">
+      <div className="flex items-baseline gap-1.5">
         <DataCell
           value={quote.price}
           display={formatPrice(quote.price)}
           color="none"
-          className="px-0 text-2xl text-fg"
+          className="px-0 text-sm font-bold text-fg"
         />
         <DataCell value={quote.changePercent} display={formatPercent(quote.changePercent)} color={dir} />
       </div>
@@ -143,7 +149,7 @@ function Stat({ label, value }: { label: string; value: string }) {
 function OrderBookView({ data }: { data: { bids: { price: number; size: number }[]; asks: { price: number; size: number }[] } }) {
   const rows = Math.min(6, data.bids.length, data.asks.length);
   return (
-    <div className="grid grid-cols-2 gap-3 font-mono text-sm tabular-nums">
+    <div className="grid grid-cols-2 gap-1.5 font-mono text-sm tabular-nums">
       <div>
         <div className="eyebrow mb-1 text-up">Bids</div>
         {data.bids.slice(0, rows).map((b, i) => (

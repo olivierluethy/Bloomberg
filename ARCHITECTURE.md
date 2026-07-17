@@ -32,7 +32,35 @@ Worth recording, because every one of these cost real debugging time:
   counts SVG nodes passes right through it.
 - **A design token copied as a hex literal will drift.** The chart axes kept the
   old grey after the text ramp was raised for contrast, leaving the labels at
-  2.5:1 while the rest of the app was fixed.
+  2.5:1 while the rest of the app was fixed. `ChartCanvas` now *reads* the tokens
+  at mount via `getComputedStyle` rather than copying them, because
+  lightweight-charts paints to a canvas and can't resolve `var()` itself.
+- **An intrinsically-wide child silently resizes a whole CSS grid.** The shell's
+  `grid` had no explicit column, so its implicit `auto` column sized to
+  max-content — and the ticker tape's duplicated marquee strip is ~2200px wide
+  intrinsically. Every row inherited that width and the right-hand panels were
+  pushed off the viewport. `grid-cols-1` (i.e. `minmax(0, 1fr)`) is the fix. The
+  build, the typecheck and the tests were all green while this was broken; only a
+  screenshot showed it.
+
+## Deliberate accessibility regression — amber on blue
+
+The reskin to the Bloomberg visual grammar puts bold amber2 (`#ffb700`) text on
+solid blue (`#0068ff`) panel-header bars. That measures **2.71:1**, under the
+WCAG AA 4.5:1 floor that the text ramp was specifically rebuilt to clear.
+
+This is a decision, not an oversight: authenticity was chosen over the audit,
+because the real terminal looks exactly like this. It is the *only* remaining
+violation — an axe `wcag2aa` pass over `/`, `/stocks`, `/portfolio`, `/economy`
+and `/news` reports `color-contrast` and nothing else, and every node is this one
+pair. Two failures that were *not* deliberate were found by that pass and fixed:
+grey on the blue bar (the watchlist EDIT button) and blue text on black at
+4.42:1 (news tickers) — blue is a bar fill in this design, never ink.
+
+If the trade is ever revisited, darkening `--color-blue` until it clears 4.5:1
+is the cheapest fix that keeps the amber-on-blue signature. Everything else
+clears AA on black: amber 8.8:1, amber2 12.0:1, white 21:1, grey 4.8:1,
+green 9.6:1, red 5.3:1.
 
 ---
 
@@ -42,7 +70,7 @@ Worth recording, because every one of these cost real debugging time:
 | --- | --- | --- |
 | Framework | **Next.js 16 (App Router)** | React Server Components where useful; most panels are client components (live data, charts). |
 | Language | **TypeScript, `strict: true`** | `noUncheckedIndexedAccess` on too. No `any` without a justifying comment. |
-| Styling | **Tailwind CSS v4** | Tailwind-only. Dark mode only — no `dark:` variants needed, the base theme *is* dark. |
+| Styling | **Tailwind CSS v4** | Tailwind-only. Dark mode only — no `dark:` variants needed, the base theme *is* dark. True-black Bloomberg grammar: amber is the default ink, blue header bars, zero border-radius app-wide, monospace throughout. |
 | Server state | **TanStack Query v5** | All API/mock reads. Owns caching, stale time, retry/backoff. |
 | Client/UI state | **Zustand** | Layout, active panel, watchlists, workspace arrangement, modal stack. Persisted slices via `persist` middleware → `localStorage`. |
 | Charts (price) | **TradingView Lightweight Charts** | OHLCV, candles, overlays. One `<PriceChart/>`, reused everywhere. |
@@ -218,8 +246,12 @@ The Phase 0 open questions, and how they turned out:
    boundary made the choice cheap to revisit. — §2
 2. **Silent-but-labeled mock fallback.** Held, and vindicated: CoinGecko 429s are routine, and
    a toast per degraded panel would have been noise. — §3
-3. **Tailwind v4.** Held. The `@theme` token block is the single source of truth for the
-   palette, which is what made the Phase 11 contrast fix a two-line change.
+3. **Tailwind v4.** Held, and vindicated twice. The `@theme` token block is the single
+   source of truth for the palette, which is what made the Phase 11 contrast fix a
+   two-line change — and later let the whole Bloomberg reskin land as a value remap
+   in one file plus chrome work, rather than a hex-by-hex edit across 40 components.
+   The token *names* were kept and only their values changed, which is why the diff
+   is legible.
 4. **Next.js over pure Vite/React.** Held. Route-level code splitting is real: Recharts
    (~390 kB) ships only on `/portfolio` and `/economy`; the price chart's canvas is behind
    `next/dynamic` and loads on demand.

@@ -62,7 +62,7 @@ function WorkspaceBody({ symbol, onClose }: { symbol: string; onClose: () => voi
         <div className="flex min-h-0 flex-col overflow-y-auto">
           <KeyStats symbol={symbol} />
           <div className="flex min-h-0 flex-1 flex-col border-t border-line">
-            <h3 className="eyebrow shrink-0 px-3 py-2">Related News</h3>
+            <h3 className="eyebrow shrink-0 px-1.5 py-0.5">Related News</h3>
             <div className="min-h-0 flex-1 overflow-y-auto">
               <NewsFeed symbol={symbol} compact limit={8} />
             </div>
@@ -86,7 +86,7 @@ function WorkspaceHeader({ symbol, onClose }: { symbol: string; onClose: () => v
   const dir = quote && quote.changePercent >= 0 ? "up" : "down";
 
   return (
-    <header className="flex shrink-0 items-center gap-3 border-b border-line px-3 py-2">
+    <header className="flex shrink-0 items-center gap-1.5 border-b border-line px-1.5 py-0.5">
       <div className="flex min-w-0 flex-col">
         <div className="flex items-center gap-2">
           <h2 id="workspace-symbol" className="font-mono text-sm font-bold text-fg">
@@ -106,7 +106,7 @@ function WorkspaceHeader({ symbol, onClose }: { symbol: string; onClose: () => v
             value={quote.price}
             display={formatPrice(quote.price, digits)}
             color="none"
-            className="px-0 text-base font-semibold text-fg"
+            className="px-0 text-sm font-bold text-fg"
           />
           <DataCell value={quote.change} display={formatSigned(quote.change, digits)} color={dir} className="px-0 text-sm" />
           <DataCell
@@ -124,7 +124,7 @@ function WorkspaceHeader({ symbol, onClose }: { symbol: string; onClose: () => v
           onClick={() => activeList && toggleSymbol(activeList.id, symbol)}
           aria-pressed={pinned}
           className={cn(
-            "border px-2 py-1 font-mono text-2xs transition-colors",
+            "border px-1.5 py-1 font-mono text-2xs transition-colors",
             pinned ? "border-amber/60 text-amber" : "border-line text-fg-dim hover:border-line-bright hover:text-fg",
           )}
         >
@@ -133,7 +133,7 @@ function WorkspaceHeader({ symbol, onClose }: { symbol: string; onClose: () => v
         <button
           type="button"
           onClick={onClose}
-          className="border border-line px-2 py-1 font-mono text-2xs text-fg-dim transition-colors hover:border-line-bright hover:text-fg"
+          className="border border-line px-1.5 py-1 font-mono text-2xs text-fg-dim transition-colors hover:border-line-bright hover:text-fg"
         >
           ESC
         </button>

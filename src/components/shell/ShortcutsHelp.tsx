@@ -16,7 +16,7 @@ export function ShortcutsHelp() {
 
   return (
     <Modal open={open} onClose={closeModal} labelledBy="shortcuts-title" className="max-w-lg">
-      <header className="flex items-center justify-between border-b border-line px-3 py-2">
+      <header className="flex items-center justify-between border-b border-line px-1.5 py-0.5">
         <div className="flex flex-col">
           <span className="eyebrow">Reference</span>
           <h2 id="shortcuts-title" className="text-sm font-semibold text-fg">
@@ -26,7 +26,7 @@ export function ShortcutsHelp() {
         <button
           type="button"
           onClick={closeModal}
-          className="border border-line px-2 py-1 font-mono text-2xs text-fg-dim transition-colors hover:border-line-bright hover:text-fg"
+          className="border border-line px-1.5 py-1 font-mono text-2xs text-fg-dim transition-colors hover:border-line-bright hover:text-fg"
         >
           ESC
         </button>
@@ -38,10 +38,10 @@ export function ShortcutsHelp() {
           if (items.length === 0) return null;
           return (
             <section key={group}>
-              <h3 className="eyebrow border-b border-line bg-elevated px-3 py-1">{group}</h3>
+              <h3 className="eyebrow border-b border-line bg-elevated px-1.5 py-1">{group}</h3>
               <ul>
                 {items.map((s) => (
-                  <li key={s.id} className="flex items-center gap-3 border-b border-line px-3 py-1.5 last:border-0">
+                  <li key={s.id} className="flex items-center gap-1.5 border-b border-line px-1.5 py-0.5 last:border-0">
                     <span className="min-w-0 flex-1 text-sm text-fg-dim">{s.label}</span>
                     <span className="flex shrink-0 items-center gap-1">
                       {displayKeys(s.keys, isMac).map((k, i) => (
@@ -61,7 +61,7 @@ export function ShortcutsHelp() {
         })}
       </div>
 
-      <footer className="shrink-0 border-t border-line px-3 py-1.5 text-2xs text-fg-faint">
+      <footer className="shrink-0 border-t border-line px-1.5 py-0.5 text-2xs text-fg-faint">
         Typing in a field suspends these — except the palette, which is always one key away.
       </footer>
     </Modal>

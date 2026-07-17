@@ -38,7 +38,7 @@ export function HoldingsTable({ valued, pending }: { valued: ValuedPosition[]; p
 
   if (pending) {
     return (
-      <div className="flex flex-col gap-2 p-3">
+      <div className="flex flex-col gap-2 p-1">
         {Array.from({ length: 6 }).map((_, i) => (
           <Skeleton key={i} className="h-4 w-full" />
         ))}
@@ -83,7 +83,7 @@ function Row({ p, onOpen }: { p: ValuedPosition; onOpen: () => void }) {
 
   return (
     <tr className="group border-b border-line last:border-0 hover:bg-elevated">
-      <td className="px-3 py-1.5">
+      <td className="px-1.5 py-0.5">
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 shrink-0" style={{ background: assetClassColor(cls) }} aria-hidden />
           <button
@@ -99,7 +99,7 @@ function Row({ p, onOpen }: { p: ValuedPosition; onOpen: () => void }) {
       </td>
       <Num>{trimQty(p.quantity)}</Num>
       <Num>{formatPrice(p.avgCost, digits)}</Num>
-      <td className="px-3 py-1.5 text-right">
+      <td className="px-1.5 py-0.5 text-right">
         {p.pending ? (
           <Skeleton className="ml-auto h-3 w-14" />
         ) : (
@@ -107,10 +107,10 @@ function Row({ p, onOpen }: { p: ValuedPosition; onOpen: () => void }) {
         )}
       </td>
       <Num>{p.pending ? "—" : formatPrice(p.marketValue)}</Num>
-      <td className="px-3 py-1.5 text-right">
+      <td className="px-1.5 py-0.5 text-right">
         {p.pending ? "—" : <DataCell value={p.dayPnL} display={formatSigned(p.dayPnL)} color={p.dayPnL >= 0 ? "up" : "down"} className="px-0" />}
       </td>
-      <td className="px-3 py-1.5 text-right">
+      <td className="px-1.5 py-0.5 text-right">
         {p.pending ? (
           "—"
         ) : (
@@ -129,7 +129,7 @@ function Row({ p, onOpen }: { p: ValuedPosition; onOpen: () => void }) {
           </div>
         )}
       </td>
-      <td className="px-3 py-1.5">
+      <td className="px-1.5 py-0.5">
         <WeightMeter weight={p.weight} />
       </td>
     </tr>
@@ -149,7 +149,7 @@ function WeightMeter({ weight }: { weight: number }) {
 }
 
 function Num({ children }: { children: React.ReactNode }) {
-  return <td className="px-3 py-1.5 text-right font-mono text-sm tabular-nums text-fg-dim">{children}</td>;
+  return <td className="px-1.5 py-0.5 text-right font-mono text-sm tabular-nums text-fg-dim">{children}</td>;
 }
 
 /** Whole units shouldn't render as 0.75-style decimals; fractional ones must. */
@@ -173,7 +173,7 @@ function Th({
   const active = sort.key === col;
   return (
     <th
-      className={cn("px-3 py-1.5 font-normal", align === "right" ? "text-right" : "text-left")}
+      className={cn("px-1.5 py-0.5 font-normal", align === "right" ? "text-right" : "text-left")}
       aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}
     >
       <button

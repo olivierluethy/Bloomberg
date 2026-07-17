@@ -87,7 +87,7 @@ export function KeyStats({ symbol }: { symbol: string }) {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="border-b border-line px-3 py-2 last:border-0">
+    <section className="border-b border-line px-1.5 py-0.5 last:border-0">
       <h3 className="eyebrow mb-1.5">{title}</h3>
       {children}
     </section>

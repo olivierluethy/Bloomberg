@@ -59,14 +59,14 @@ export function CalendarsModule() {
   const [tab, setTab] = useState<Tab>("Earnings");
 
   return (
-    <div className="flex h-full flex-col p-3">
-      <div className="mb-3 flex shrink-0 items-baseline gap-3">
+    <div className="flex h-full flex-col p-1">
+      <div className="mb-1 flex shrink-0 items-baseline gap-1.5">
         <span className="font-mono text-2xs font-bold tracking-wide text-amber">{mod?.code ?? "CAL"}</span>
-        <h1 className="text-base font-semibold text-fg">{mod?.label ?? "Calendars"}</h1>
+        <h1 className="text-xs font-bold uppercase text-amber2">{mod?.label ?? "Calendars"}</h1>
         <span className="hidden text-sm text-fg-faint sm:inline">{mod?.blurb}</span>
       </div>
 
-      <div role="tablist" aria-label="Calendars" className="mb-3 flex shrink-0 items-center gap-1">
+      <div role="tablist" aria-label="Calendars" className="mb-1 flex shrink-0 items-center gap-1">
         {TABS.map((t) => (
           <button
             key={t}
@@ -74,7 +74,7 @@ export function CalendarsModule() {
             aria-selected={t === tab}
             onClick={() => setTab(t)}
             className={cn(
-              "px-2 py-1 text-xs font-medium transition-colors",
+              "px-1.5 py-1 text-xs font-medium transition-colors",
               t === tab ? "bg-amber/15 text-amber" : "text-fg-dim hover:text-fg",
             )}
           >
@@ -98,6 +98,7 @@ function EarningsPanel() {
 
   return (
     <Panel
+      tag="1"
       title="Earnings"
       eyebrow={`${range.from} → ${range.to}`}
       className="min-h-0 flex-1"
@@ -149,6 +150,7 @@ function EconomicPanel() {
 
   return (
     <Panel
+      tag="2"
       title="Economic Releases"
       eyebrow={`${range.from} → ${range.to}`}
       className="min-h-0 flex-1"
@@ -185,6 +187,7 @@ function IpoPanel() {
 
   return (
     <Panel
+      tag="3"
       title="IPO Calendar"
       eyebrow={`${range.from} → ${range.to}`}
       className="min-h-0 flex-1"
@@ -243,13 +246,13 @@ function GroupedByDate<T>({
     <div>
       {dates.map((date) => (
         <section key={date}>
-          <h3 className="sticky top-0 z-10 flex items-center gap-2 border-y border-line bg-elevated px-3 py-1">
+          <h3 className="sticky top-0 z-10 flex items-center gap-2 border-y border-line bg-elevated px-1.5 py-1">
             <span className="eyebrow">{formatDateHeading(date)}</span>
             {date === today && <span className="font-mono text-2xs font-bold text-amber">TODAY</span>}
           </h3>
           <ul>
             {groups.get(date)!.map((item, i) => (
-              <li key={i} className="flex items-center gap-3 border-b border-line px-3 py-1.5 last:border-0 hover:bg-elevated">
+              <li key={i} className="flex items-center gap-1.5 border-b border-line px-1.5 py-0.5 last:border-0 hover:bg-elevated">
                 {children(item)}
               </li>
             ))}

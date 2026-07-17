@@ -20,7 +20,7 @@ import { DEFAULT_INDICATORS, type CrosshairInfo, type IndicatorConfig } from "@/
 // Canvas is browser-only (canvas/DOM) and heavy → lazy load, no SSR.
 const ChartCanvas = dynamic(() => import("@/components/charts/ChartCanvas"), {
   ssr: false,
-  loading: () => <div className="h-full w-full animate-pulse bg-elevated/40" />,
+  loading: () => <div className="h-full w-full animate-pulse bg-elevated" />,
 });
 
 const RANGES: Range[] = ["1D", "5D", "1M", "3M", "6M", "1Y", "5Y"];
@@ -72,7 +72,7 @@ export function PriceChart({
   return (
     <div className={cn("flex h-full min-h-0 flex-col", className)}>
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line px-2 py-1.5">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-b border-line px-1.5 py-0.5">
         <div className="flex items-center gap-0.5">
           {RANGES.map((r) => (
             <button
@@ -81,7 +81,7 @@ export function PriceChart({
               onClick={() => setRange(r)}
               className={cn(
                 "px-1.5 py-0.5 font-mono text-2xs font-semibold transition-colors",
-                r === range ? "bg-amber/15 text-amber" : "text-fg-faint hover:text-fg-dim",
+                r === range ? "bg-amber text-black" : "text-amber hover:bg-amber hover:text-black",
               )}
             >
               {r}
@@ -98,7 +98,7 @@ export function PriceChart({
               aria-pressed={config[key]}
               className={cn(
                 "border px-1.5 py-0.5 font-mono text-2xs font-semibold transition-colors",
-                config[key] ? "border-cyan/50 text-cyan" : "border-line text-fg-faint hover:text-fg-dim",
+                config[key] ? "border-amber bg-amber text-black" : "border-line text-amber hover:bg-amber hover:text-black",
               )}
             >
               {label}
@@ -112,8 +112,8 @@ export function PriceChart({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-3 px-2 py-1 font-mono text-2xs tabular-nums">
-        <span className="font-semibold text-fg">{symbol}</span>
+      <div className="flex items-center gap-1.5 px-1.5 py-1 font-mono text-2xs tabular-nums">
+        <span className="font-bold text-amber2">{symbol}</span>
         {shown ? (
           <span className={cn("flex gap-2", barUp ? "text-up" : "text-down")}>
             <Ohlc label="O" value={formatPrice(shown.open, digits)} />
@@ -122,18 +122,18 @@ export function PriceChart({
             <Ohlc label="C" value={formatPrice(shown.close, digits)} />
           </span>
         ) : (
-          <span className="text-fg-faint">—</span>
+          <span className="text-fg-dim">—</span>
         )}
       </div>
 
       {/* Chart */}
       <div className="relative min-h-0 flex-1">
         {isPending ? (
-          <div className="absolute inset-0 p-2">
+          <div className="absolute inset-0 p-1">
             <Skeleton className="h-full w-full" />
           </div>
         ) : candles.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-sm text-fg-faint">
+          <div className="flex h-full items-center justify-center text-xs text-fg-dim">
             No price history available.
           </div>
         ) : (
@@ -147,7 +147,7 @@ export function PriceChart({
 function Ohlc({ label, value }: { label: string; value: string }) {
   return (
     <span>
-      <span className="text-fg-faint">{label}</span> {value}
+      <span className="text-fg-dim">{label}</span> {value}
     </span>
   );
 }

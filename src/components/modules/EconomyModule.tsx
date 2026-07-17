@@ -27,10 +27,10 @@ export function EconomyModule() {
   const results = useEconomicSeriesBatch(ECON_SERIES.map((s) => s.id));
 
   return (
-    <div className="flex h-full flex-col gap-3 overflow-auto p-3">
-      <div className="flex shrink-0 items-baseline gap-3">
+    <div className="flex h-full flex-col gap-px overflow-auto p-px">
+      <div className="flex shrink-0 items-baseline gap-1.5">
         <span className="font-mono text-2xs font-bold tracking-wide text-amber">{mod?.code ?? "ECO"}</span>
-        <h1 className="text-base font-semibold text-fg">{mod?.label ?? "Economy"}</h1>
+        <h1 className="text-xs font-bold uppercase text-amber2">{mod?.label ?? "Economy"}</h1>
         <span className="hidden text-sm text-fg-faint sm:inline">{mod?.blurb}</span>
       </div>
 
@@ -52,15 +52,16 @@ export function EconomyModule() {
         variants={reduce ? undefined : staggerContainer}
         initial={reduce ? undefined : "hidden"}
         animate={reduce ? undefined : "visible"}
-        className="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-3"
+        className="grid min-h-0 flex-1 grid-cols-1 gap-px lg:grid-cols-3"
       >
         {ECON_SERIES.map((series, i) => (
           <motion.div key={series.id} variants={reduce ? undefined : panelVariants} className="min-h-0">
             <Panel
+              tag={String(i + 1)}
               title={series.short}
               eyebrow={`${series.group} · ${series.frequency}`}
               className="h-full min-h-52"
-              bodyClassName="p-2"
+              bodyClassName="p-1"
               actions={<SourceTag source={results[i]?.data?.source} provider={results[i]?.data?.provider} />}
             >
               {results[i]?.isPending ? (
@@ -75,7 +76,15 @@ export function EconomyModule() {
         ))}
 
         <motion.div variants={reduce ? undefined : panelVariants} className="min-h-0 lg:col-span-3">
-          <Panel title="Treasury Yield Curve" eyebrow="Rates · daily" className="h-full min-h-56">
+          {/* Follows the series panels, which number 1..ECON_SERIES.length —
+              derived, not hardcoded, or adding a series silently duplicates a
+              panel number. */}
+          <Panel
+            tag={String(ECON_SERIES.length + 1)}
+            title="Treasury Yield Curve"
+            eyebrow="Rates · daily"
+            className="h-full min-h-56"
+          >
             <YieldCurve />
           </Panel>
         </motion.div>
@@ -106,7 +115,7 @@ function StatTile({
   const good = delta === undefined || delta === 0 ? null : series.inverse ? delta < 0 : delta > 0;
 
   return (
-    <div className="flex flex-col gap-0.5 border border-line bg-panel px-3 py-2">
+    <div className="flex flex-col gap-0.5 border border-line bg-panel px-1.5 py-0.5">
       <div className="flex items-center justify-between gap-2">
         <span className="eyebrow truncate">{series.short}</span>
         <SourceTag source={source} provider={provider} />

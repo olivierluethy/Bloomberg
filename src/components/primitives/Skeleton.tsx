@@ -42,7 +42,7 @@ export function SkeletonRows({ rows = 6, className }: { rows?: number; className
   return (
     <div className={cn("flex flex-col", className)} aria-hidden>
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 border-b border-line px-3 py-2 last:border-0">
+        <div key={i} className="flex items-center gap-1.5 border-b border-line px-1.5 py-0.5 last:border-0">
           <Skeleton className="h-3 w-14" />
           <Skeleton className="h-3 flex-1" style={{ maxWidth: "40%" }} />
           <Skeleton className="ml-auto h-3 w-16" />

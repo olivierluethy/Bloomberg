@@ -16,11 +16,11 @@ export function ChartLab() {
   const [symbol, setSymbol] = useState("BTC-USD");
 
   return (
-    <div className="flex h-full flex-col p-3">
-      <div className="mb-3 flex items-baseline gap-3">
+    <div className="flex h-full flex-col p-1">
+      <div className="mb-1 flex items-baseline gap-1.5">
         <span className="font-mono text-2xs font-bold tracking-wide text-amber">CHT</span>
-        <h1 className="text-base font-semibold text-fg">Charting Engine</h1>
-        <span className="text-sm text-fg-faint">One reusable PriceChart — candles, volume, indicators.</span>
+        <h1 className="text-xs font-bold uppercase text-amber2">Charting Engine</h1>
+        <span className="text-2xs text-fg-dim">One reusable PriceChart — candles, volume, indicators.</span>
         <div className="ml-auto flex items-center gap-1">
           {SYMBOLS.map((s) => (
             <button
@@ -28,7 +28,7 @@ export function ChartLab() {
               type="button"
               onClick={() => setSymbol(s)}
               className={cn(
-                "px-2 py-0.5 font-mono text-2xs font-semibold transition-colors",
+                "px-1.5 py-0.5 font-mono text-2xs font-semibold transition-colors",
                 s === symbol ? "bg-amber/15 text-amber" : "text-fg-faint hover:text-fg-dim",
               )}
             >
@@ -38,7 +38,7 @@ export function ChartLab() {
         </div>
       </div>
 
-      <Panel title={symbol} eyebrow="Price · OHLCV" className="min-h-0 flex-1" bodyClassName="min-h-0">
+      <Panel tag="CHT" title={symbol} eyebrow="Price · OHLCV" className="min-h-0 flex-1" bodyClassName="min-h-0">
         <PriceChart symbol={symbol} />
       </Panel>
     </div>

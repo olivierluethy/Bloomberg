@@ -1,7 +1,7 @@
 "use client";
 
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { AXIS_INK, GRID_INK, MAGNITUDE_HUE } from "@/config/viz";
+import { AXIS_INK, GRID_INK, SERIES_INK } from "@/config/viz";
 import { formatEcon, tickDigits, type EconSeries } from "@/config/econ";
 import type { EconPoint } from "@/data/types";
 
@@ -27,8 +27,8 @@ export function SeriesChart({ series, points }: { series: EconSeries; points: Ec
       <AreaChart data={points} margin={{ top: 4, right: 8, bottom: 0, left: 0 }}>
         <defs>
           <linearGradient id={`fill-${series.id}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={MAGNITUDE_HUE} stopOpacity={0.28} />
-            <stop offset="100%" stopColor={MAGNITUDE_HUE} stopOpacity={0} />
+            <stop offset="0%" stopColor={SERIES_INK} stopOpacity={0.28} />
+            <stop offset="100%" stopColor={SERIES_INK} stopOpacity={0} />
           </linearGradient>
         </defs>
         <CartesianGrid stroke={GRID_INK} vertical={false} />
@@ -54,7 +54,7 @@ export function SeriesChart({ series, points }: { series: EconSeries; points: Ec
             const p = payload?.[0];
             if (!p) return null;
             return (
-              <div className="border border-line-bright bg-elevated px-2 py-1 shadow-lg">
+              <div className="border border-line bg-void px-1.5 py-0.5">
                 <p className="font-mono text-2xs text-fg-dim">{String(label)}</p>
                 <p className="font-mono text-xs tabular-nums text-fg">
                   {formatEcon(Number(p.value), series.units)}
@@ -66,12 +66,12 @@ export function SeriesChart({ series, points }: { series: EconSeries; points: Ec
         <Area
           type="monotone"
           dataKey="value"
-          stroke={MAGNITUDE_HUE}
+          stroke={SERIES_INK}
           strokeWidth={2}
           fill={`url(#fill-${series.id})`}
           isAnimationActive={false}
           dot={false}
-          activeDot={{ r: 3, fill: MAGNITUDE_HUE, stroke: "none" }}
+          activeDot={{ r: 3, fill: SERIES_INK, stroke: "none" }}
         />
       </AreaChart>
     </ResponsiveContainer>

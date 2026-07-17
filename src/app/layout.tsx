@@ -1,20 +1,25 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans, JetBrains_Mono } from "next/font/google";
+import { IBM_Plex_Mono, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { AppShell } from "@/components/shell/AppShell";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 
-const plexSans = IBM_Plex_Sans({
+/*
+ * Two monospace faces, no sans. Roboto Mono is the primary and IBM Plex Mono the
+ * fallback, mirroring the reference's stack order; both are self-hosted by
+ * next/font so the terminal never flashes a system fallback on first paint.
+ */
+const robotoMono = Roboto_Mono({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-plex-sans",
+  weight: ["400", "500", "700"],
+  variable: "--font-roboto-mono",
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
-  weight: ["400", "500", "700"],
-  variable: "--font-jetbrains",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-plex-mono",
   display: "swap",
 });
 
@@ -29,10 +34,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plexSans.variable} ${jetbrainsMono.variable}`}
+      className={`${robotoMono.variable} ${plexMono.variable}`}
       suppressHydrationWarning
     >
-      <body className="bg-void text-fg font-sans">
+      {/* Amber is the default ink (see globals.css) — no text colour here. */}
+      <body className="bg-void font-mono">
         <QueryProvider>
           <AppShell>{children}</AppShell>
         </QueryProvider>
