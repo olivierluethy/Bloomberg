@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import { useEffect, useSyncExternalStore } from "react";
+import { useStoreHydration } from "@/store/hydration";
 import { MARKETS_WATCHLIST } from "@/config/universes";
 
 /**
@@ -137,36 +137,9 @@ export const useWatchlistStore = create<WatchlistState>()(
   ),
 );
 
-/**
- * Rehydrates the persisted store on mount and reports when it's safe to render
- * user data. Components show a skeleton until this flips true, which keeps the
- * server render and the first client render identical.
- *
- * Hydration is external state, so it's read through `useSyncExternalStore`
- * rather than mirrored into local state from an effect. The server snapshot is
- * always false, which is what makes the two first renders agree.
- */
+/** True once the persisted lists have rehydrated; see `store/hydration`. */
 export function useWatchlistHydration(): boolean {
-  useEffect(() => {
-    // No-op if an earlier mount already rehydrated (e.g. a second panel).
-    if (!useWatchlistStore.persist.hasHydrated()) {
-      void useWatchlistStore.persist.rehydrate();
-    }
-  }, []);
-
-  return useSyncExternalStore(subscribeToHydration, getHydrated, getServerHydrated);
-}
-
-function subscribeToHydration(onChange: () => void): () => void {
-  return useWatchlistStore.persist.onFinishHydration(onChange);
-}
-
-function getHydrated(): boolean {
-  return useWatchlistStore.persist.hasHydrated();
-}
-
-function getServerHydrated(): boolean {
-  return false;
+  return useStoreHydration(useWatchlistStore);
 }
 
 /** The active list, or the first one if a stale id was persisted. */
