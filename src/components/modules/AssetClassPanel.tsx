@@ -35,7 +35,7 @@ export function AssetClassPanel({ moduleId }: { moduleId: string }) {
         actions={<span className="eyebrow">{universe.symbols.length} symbols</span>}
         scroll
       >
-        <AssetTable symbols={universe.symbols} showVolume={universe.showVolume} />
+        <AssetTable symbols={universe.symbols} showVolume={universe.showVolume} pinnable />
       </Panel>
     </div>
   );

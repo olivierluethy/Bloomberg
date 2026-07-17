@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useUIStore } from "@/store/ui";
 
 /**
- * The command bar is the spine of the terminal. For now the input is a
- * placeholder — the real global search / command palette arrives in Phase 6 —
- * but it already reads as the primary way you drive the app.
+ * The command bar is the spine of the terminal: the prompt opens the ⌘K
+ * palette, which is the primary way you drive the app.
  */
 export function CommandBar() {
   return (
     <header className="flex h-11 shrink-0 items-center gap-3 border-b border-line bg-elevated px-3">
       <Brand />
-      <CommandInputPlaceholder />
+      <CommandTrigger />
       <Clock />
     </header>
   );
@@ -26,13 +26,15 @@ function Brand() {
   );
 }
 
-function CommandInputPlaceholder() {
+function CommandTrigger() {
+  const openPalette = useUIStore((s) => s.openPalette);
   return (
     <button
       type="button"
-      // Non-functional in Phase 1; wired to the command palette in Phase 6.
+      onClick={openPalette}
       className="group flex h-7 flex-1 items-center gap-2 border border-line bg-void px-2 text-left transition-colors hover:border-line-bright"
-      aria-label="Open command palette (coming in a later phase)"
+      aria-label="Open command palette"
+      aria-keyshortcuts="Meta+K Control+K"
     >
       <span className="font-mono text-sm text-amber" aria-hidden>{">"}</span>
       <span className="font-mono text-sm text-fg-faint">Search markets, run a command…</span>

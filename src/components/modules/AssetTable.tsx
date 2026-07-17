@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/primitives/Skeleton";
 import { useOHLCV, useQuotes } from "@/data/hooks";
 import { classifySymbol } from "@/data/provider";
 import { formatCompact, formatPercent, formatPrice, formatSigned } from "@/lib/format";
+import { useActiveWatchlist, useWatchlistHydration, useWatchlistStore } from "@/store/watchlists";
 import type { Provenance, Quote } from "@/data/types";
 
 type SortKey = "symbol" | "price" | "change" | "changePercent" | "volume";
@@ -39,15 +40,27 @@ export function AssetTable({
   showVolume = true,
   limit,
   defaultSort,
+  pinnable = false,
 }: {
   symbols: string[];
   showVolume?: boolean;
   /** Render only the first N rows after sorting (e.g. top movers). */
   limit?: number;
   defaultSort?: { key: SortKey; dir: SortDir };
+  /** Show a star toggle that pins each row to the active watchlist. */
+  pinnable?: boolean;
 }) {
   const results = useQuotes(symbols);
   const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>(defaultSort ?? { key: "symbol", dir: "asc" });
+
+  // Pin state comes from the persisted store, so the stars stay hidden until it
+  // has rehydrated — otherwise the first client render would contradict the
+  // server HTML for anyone with saved lists.
+  const hydrated = useWatchlistHydration();
+  const activeList = useActiveWatchlist();
+  const toggleSymbol = useWatchlistStore((s) => s.toggleSymbol);
+  const showPins = pinnable && hydrated && Boolean(activeList);
+  const pinned = useMemo(() => new Set(activeList?.symbols ?? []), [activeList]);
 
   const rows: Row[] = useMemo(
     () =>
@@ -100,9 +113,16 @@ export function AssetTable({
       <tbody>
         {sorted.map((row) =>
           row.quote ? (
-            <QuoteRow key={row.symbol} row={row} showVolume={showVolume} />
+            <QuoteRow
+              key={row.symbol}
+              row={row}
+              showVolume={showVolume}
+              showPin={showPins}
+              pinned={pinned.has(row.symbol)}
+              onTogglePin={() => activeList && toggleSymbol(activeList.id, row.symbol)}
+            />
           ) : (
-            <SkeletonRow key={row.symbol} symbol={row.symbol} showVolume={showVolume} />
+            <SkeletonRow key={row.symbol} symbol={row.symbol} showVolume={showVolume} showPin={showPins} />
           ),
         )}
       </tbody>
@@ -161,7 +181,19 @@ function Th({
   );
 }
 
-function QuoteRow({ row, showVolume }: { row: Row; showVolume: boolean }) {
+function QuoteRow({
+  row,
+  showVolume,
+  showPin,
+  pinned,
+  onTogglePin,
+}: {
+  row: Row;
+  showVolume: boolean;
+  showPin: boolean;
+  pinned: boolean;
+  onTogglePin: () => void;
+}) {
   const q = row.quote!;
   const dir = q.changePercent >= 0 ? "up" : "down";
   const digits = priceDigits(row.symbol, q.price);
@@ -169,6 +201,7 @@ function QuoteRow({ row, showVolume }: { row: Row; showVolume: boolean }) {
     <tr className="group border-b border-line last:border-0 hover:bg-elevated">
       <td className="px-3 py-1.5">
         <div className="flex items-center gap-2">
+          {showPin && <PinButton symbol={row.symbol} pinned={pinned} onToggle={onTogglePin} />}
           <span className="font-mono text-sm font-medium text-fg">{row.symbol}</span>
           <SourceTag source={row.source} provider={row.provider} className="opacity-0 transition-opacity group-hover:opacity-100" />
         </div>
@@ -196,11 +229,39 @@ function QuoteRow({ row, showVolume }: { row: Row; showVolume: boolean }) {
   );
 }
 
-function SkeletonRow({ symbol, showVolume }: { symbol: string; showVolume: boolean }) {
+/**
+ * Star toggle. Unpinned stars stay dim until row hover or keyboard focus so the
+ * table reads as data first, controls second.
+ */
+function PinButton({ symbol, pinned, onToggle }: { symbol: string; pinned: boolean; onToggle: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-pressed={pinned}
+      aria-label={pinned ? `Unpin ${symbol} from watchlist` : `Pin ${symbol} to watchlist`}
+      title={pinned ? "Unpin from watchlist" : "Pin to watchlist"}
+      className={cn(
+        "font-mono text-sm leading-none transition-all",
+        pinned
+          ? "text-amber"
+          : "text-fg-faint opacity-0 hover:text-fg-dim focus-visible:opacity-100 group-hover:opacity-100",
+      )}
+    >
+      <span aria-hidden>{pinned ? "★" : "☆"}</span>
+    </button>
+  );
+}
+
+function SkeletonRow({ symbol, showVolume, showPin }: { symbol: string; showVolume: boolean; showPin: boolean }) {
   return (
     <tr className="border-b border-line last:border-0">
       <td className="px-3 py-1.5">
-        <span className="font-mono text-sm text-fg-faint">{symbol}</span>
+        <div className="flex items-center gap-2">
+          {/* Reserve the star's width so rows don't shift as quotes land. */}
+          {showPin && <span className="w-3.5" aria-hidden />}
+          <span className="font-mono text-sm text-fg-faint">{symbol}</span>
+        </div>
       </td>
       <td className="py-1.5"><Skeleton className="ml-auto h-3 w-14" /></td>
       <td className="py-1.5"><Skeleton className="ml-auto h-3 w-12" /></td>

@@ -4,6 +4,8 @@ import { motion, useReducedMotion } from "framer-motion";
 import { CommandBar } from "@/components/shell/CommandBar";
 import { LeftNav } from "@/components/shell/LeftNav";
 import { StatusBar } from "@/components/shell/StatusBar";
+import { CommandPalette } from "@/components/search/CommandPalette";
+import { WatchlistManager } from "@/components/watchlists/WatchlistManager";
 import { EASE_OUT } from "@/lib/motion";
 
 /**
@@ -45,6 +47,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <motion.div {...boot(2)}>
         <StatusBar />
       </motion.div>
+
+      {/* Overlays live at the shell level: ⌘K works from any module, and the
+          watchlist editor can be opened from the palette or a panel alike. */}
+      <CommandPalette />
+      <WatchlistManager />
     </div>
   );
 }

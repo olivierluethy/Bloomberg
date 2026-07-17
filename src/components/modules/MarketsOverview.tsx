@@ -7,8 +7,9 @@ import { DataCell } from "@/components/primitives/DataCell";
 import { SourceTag } from "@/components/primitives/SourceTag";
 import { Skeleton } from "@/components/primitives/Skeleton";
 import { AssetTable } from "@/components/modules/AssetTable";
+import { WatchlistPanel } from "@/components/watchlists/WatchlistPanel";
 import { useQuotes } from "@/data/hooks";
-import { MARKETS_MOVERS, MARKETS_SUMMARY, MARKETS_WATCHLIST } from "@/config/universes";
+import { MARKETS_MOVERS, MARKETS_SUMMARY } from "@/config/universes";
 import { classifySymbol } from "@/data/provider";
 import { formatPercent, formatPrice } from "@/lib/format";
 import { panelVariants, staggerContainer } from "@/lib/motion";
@@ -28,9 +29,7 @@ export function MarketsOverview() {
 
       <div className="flex min-h-0 flex-1 gap-3">
         <ResizablePanel axis="x" defaultSize={320} min={240} max={520} className="h-full">
-          <Panel title="Watchlist" eyebrow="Pinned" className="h-full" scroll>
-            <AssetTable symbols={MARKETS_WATCHLIST} showVolume={false} />
-          </Panel>
+          <WatchlistPanel />
         </ResizablePanel>
 
         <motion.div
