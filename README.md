@@ -1,5 +1,9 @@
 # TERM — a financial intelligence terminal
 
+<p>
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+</p>
+
 A dense, keyboard-first market workspace inspired by professional trading
 terminals. Cross-asset quotes, charting with indicators, an asset-detail
 workspace, a virtual portfolio with real cost-basis maths, a macro dashboard,
@@ -143,3 +147,12 @@ honoured throughout.
 
 A reference project, not investment advice. Market data belongs to the respective
 providers under their own terms.
+
+## License
+
+Released under the [MIT License](LICENSE) © 2026 Olivier Lüthy. You're free to use, modify and distribute this
+software, including commercially, as long as the copyright notice and license are included.
+
+## Author
+
+Built by **Olivier Lüthy** — [GitHub](https://github.com/olivierluethy).
